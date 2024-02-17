@@ -17,7 +17,7 @@ import com.stayspotter.Constant
 import com.stayspotter.R
 
 @Composable
-fun GenericButton(text: String, color: Color, onClick: () -> Unit = {}) {
+fun GenericFormButton(text: String, color: Color, onClick: () -> Unit = {}) {
     Button(
         onClick = onClick,
         modifier = Modifier.size(Constant.STD_LENGTH, Constant.STD_HEIGHT),
@@ -55,4 +55,30 @@ fun FormField(placeholder: String, field: String, setField: (String) -> Unit,
         },
         visualTransformation = visualTransformation
     )
+}
+
+@Composable
+fun IconField(placeholder: String, field: String, setField: (String) -> Unit,
+              icon: @Composable () -> Unit) {
+
+    TextField(
+        modifier = Modifier
+            .size(Constant.STD_LENGTH, Constant.STD_HEIGHT),
+        value = field,
+        onValueChange = {
+            setField(it)
+        },
+        shape = RoundedCornerShape(Constant.CORNER_RADIUS),
+        colors = TextFieldDefaults.textFieldColors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            backgroundColor = Constant.PETRIFIED_BLUE,
+            textColor = Constant.TEXT_GRAY
+        ),
+        placeholder = {
+            Text(text = placeholder, color = Constant.TEXT_GRAY, fontSize = Constant.STD_FONT_SIZE)
+        },
+        leadingIcon = icon
+    )
+
 }
