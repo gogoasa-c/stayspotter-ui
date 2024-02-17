@@ -21,6 +21,7 @@ class Constant {
         public val STD_LENGTH: Dp = 360.dp
         public val STD_HEIGHT: Dp = 50.dp
         public val STD_PADDING: Dp = 10.dp
+        public val STD_SQUARE_ICON_LENGTH = 30.dp
         // sizes in sp
         public val STD_FONT_SIZE: TextUnit = 12.sp
         public val STD_TITLE_FONT_SIZE: TextUnit = 24.sp

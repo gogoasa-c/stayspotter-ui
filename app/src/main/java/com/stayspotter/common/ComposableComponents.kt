@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -31,6 +34,19 @@ fun GenericFormButton(text: String, color: Color, onClick: () -> Unit = {}) {
         )
     }
 }
+
+@Composable
+fun GenericSquircleButton(color: Color, icon: @Composable () -> Unit, onClick: () -> Unit = {}) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.size(Constant.STD_HEIGHT, Constant.STD_HEIGHT),
+        colors = ButtonDefaults.buttonColors(backgroundColor = color),
+        shape = RoundedCornerShape(Constant.CORNER_RADIUS)
+    ) {
+        icon()
+    }
+}
+
 
 @Composable
 fun FormField(placeholder: String, field: String, setField: (String) -> Unit,
@@ -80,5 +96,4 @@ fun IconField(placeholder: String, field: String, setField: (String) -> Unit,
         },
         leadingIcon = icon
     )
-
 }

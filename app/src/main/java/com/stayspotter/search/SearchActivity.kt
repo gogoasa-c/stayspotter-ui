@@ -10,9 +10,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.PeopleAlt
+import androidx.compose.material.icons.outlined.RemoveRedEye
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.stayspotter.Constant
 import com.stayspotter.R
 import com.stayspotter.common.FormField
+import com.stayspotter.common.GenericSquircleButton
 import com.stayspotter.common.IconField
 
 class SearchActivity : AppCompatActivity() {
@@ -44,13 +52,20 @@ class SearchActivity : AppCompatActivity() {
 }
 
 @Composable
+fun ButtonSpacer() {
+    // not actually 100% aligned but looks better
+    val spacing = Constant.STD_LENGTH / 4 - Constant.STD_HEIGHT + 10.dp
+
+    Spacer(modifier = Modifier.size(spacing))
+}
+
+@Composable
 @Preview
 fun PreviewSearch() {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Constant.BACKGROUND_COLOR),
-
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -77,9 +92,48 @@ fun PreviewSearch() {
         val (destination, setDestination) = remember { mutableStateOf("") }
 
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING * 4))
-        IconField(placeholder = "Your destination...", field = destination,
-            setField = setDestination) {
+        IconField(
+            placeholder = "Your destination...", field = destination,
+            setField = setDestination
+        ) {
             Icon(Icons.Default.Search, contentDescription = "Search", tint = Constant.TEXT_GRAY)
+        }
+
+        Row(
+            modifier = Modifier.padding(top = Constant.STD_PADDING * 4),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            GenericSquircleButton(Constant.PETRIFIED_BLUE, icon = {
+                Icon(
+                    Icons.Default.CalendarMonth, contentDescription = "Calendar",
+                    tint = Constant.TEXT_GRAY,
+                )
+            })
+            ButtonSpacer()
+
+            GenericSquircleButton(Constant.PETRIFIED_BLUE, icon = {
+                Icon(
+                    Icons.Outlined.PeopleAlt, contentDescription = "Persons",
+                    tint = Constant.TEXT_GRAY,
+                )
+            })
+            ButtonSpacer()
+
+            GenericSquircleButton(Constant.PETRIFIED_BLUE, icon = {
+                Icon(
+                    Icons.Default.AttachMoney, contentDescription = "Price",
+                    tint = Constant.TEXT_GRAY,
+                )
+            })
+            ButtonSpacer()
+            
+            GenericSquircleButton(Constant.PETRIFIED_BLUE, icon = {
+                Icon(
+                    Icons.Outlined.RemoveRedEye, contentDescription = "Sights",
+                    tint = Constant.TEXT_GRAY,
+                )
+            })
         }
 
     }
