@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.VisualTransformation
 import com.stayspotter.Constant
 import com.stayspotter.R
 
@@ -32,7 +33,8 @@ fun GenericButton(text: String, color: Color, onClick: () -> Unit = {}) {
 }
 
 @Composable
-fun FormField(placeholder: String, field: String, setField: (String) -> Unit) {
+fun FormField(placeholder: String, field: String, setField: (String) -> Unit,
+              visualTransformation: VisualTransformation = VisualTransformation.None) {
 
     TextField(
         modifier = Modifier
@@ -50,6 +52,7 @@ fun FormField(placeholder: String, field: String, setField: (String) -> Unit) {
         ),
         placeholder = {
             Text(text = placeholder, color = Constant.TEXT_GRAY, fontSize = Constant.STD_FONT_SIZE)
-        }
+        },
+        visualTransformation = visualTransformation
     )
 }

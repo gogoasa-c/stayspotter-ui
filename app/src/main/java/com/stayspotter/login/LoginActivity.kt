@@ -30,8 +30,12 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.core.content.ContextCompat.startActivity
 import com.stayspotter.Constant
@@ -140,7 +144,7 @@ fun PreviewLogin() {
 
         FormField("Username", username, setUsername)
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING))
-        FormField("Password", password, setPassword)
+        FormField("Password", password, setPassword, PasswordVisualTransformation())
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING))
         GenericButton("Login", Constant.EDGE_BLUE, loginOnClick)
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING))
