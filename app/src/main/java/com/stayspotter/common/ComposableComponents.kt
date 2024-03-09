@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.VisualTransformation
@@ -94,6 +95,7 @@ fun IconField(placeholder: String, field: String, setField: (String) -> Unit,
         placeholder = {
             Text(text = placeholder, color = Constant.TEXT_GRAY, fontSize = Constant.STD_FONT_SIZE)
         },
-        leadingIcon = icon
+        leadingIcon = icon,
+        textStyle = TextStyle.Default.copy(fontSize = Constant.STD_FONT_SIZE * 2)
     )
 }
