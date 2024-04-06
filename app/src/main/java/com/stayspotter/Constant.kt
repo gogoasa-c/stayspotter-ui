@@ -11,20 +11,24 @@ class Constant {
 
     companion object {
         // colours:
-        public val BACKGROUND_COLOR: Color = Color(0xFF202020)
-        public val PETRIFIED_BLUE: Color = Color(0xFF124966)
-        public val EDGE_BLUE: Color = Color(0xFF2EB4FC)
-        public val LIGHT_EDGE_BLUE: Color = Color(0xFFABE1FE)
-        public val TEXT_GRAY: Color = Color(0xFFEEEEEE)
+        val BACKGROUND_COLOR: Color = Color(0xFF202020)
+        val DARK_GRAY: Color = Color(0xFF121212)
+        val PETRIFIED_BLUE: Color = Color(0xFF124966)
+        val EDGE_BLUE: Color = Color(0xFF2EB4FC)
+        val LIGHT_EDGE_BLUE: Color = Color(0xFFABE1FE)
+        val TEXT_GRAY: Color = Color(0xFFEEEEEE)
+
         // sizes in dp
-        public val CORNER_RADIUS: Dp = 16.dp
-        public val STD_LENGTH: Dp = 360.dp
-        public val STD_HEIGHT: Dp = 50.dp
-        public val STD_PADDING: Dp = 10.dp
-        public val STD_SQUARE_ICON_LENGTH = 30.dp
+        val CORNER_RADIUS: Dp = 16.dp
+        val STD_LENGTH: Dp = 360.dp
+        val STD_HEIGHT: Dp = 50.dp
+        val NAVBAR_HEIGHT: Dp = 75.dp
+        val STD_PADDING: Dp = 10.dp
+        val STD_SQUARE_ICON_LENGTH = 30.dp
+        val OVERLAY_BUTTON_OFFSET = 400.dp
         // sizes in sp
-        public val STD_FONT_SIZE: TextUnit = 12.sp
-        public val STD_TITLE_FONT_SIZE: TextUnit = 24.sp
-        public val STD_SUBTITLE_FONT_SIZE: TextUnit = 18.sp
+        val STD_FONT_SIZE: TextUnit = 12.sp
+        val STD_TITLE_FONT_SIZE: TextUnit = 24.sp
+        val STD_SUBTITLE_FONT_SIZE: TextUnit = 18.sp
     }
 }

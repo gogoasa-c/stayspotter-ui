@@ -1,22 +1,24 @@
 package com.stayspotter.common
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.Dp
 import com.stayspotter.Constant
 import com.stayspotter.R
 
@@ -50,8 +52,10 @@ fun GenericSquircleButton(color: Color, icon: @Composable () -> Unit, onClick: (
 
 
 @Composable
-fun FormField(placeholder: String, field: String, setField: (String) -> Unit,
-              visualTransformation: VisualTransformation = VisualTransformation.None) {
+fun FormField(
+    placeholder: String, field: String, setField: (String) -> Unit,
+    visualTransformation: VisualTransformation = VisualTransformation.None
+) {
 
     TextField(
         modifier = Modifier
@@ -75,8 +79,10 @@ fun FormField(placeholder: String, field: String, setField: (String) -> Unit,
 }
 
 @Composable
-fun IconField(placeholder: String, field: String, setField: (String) -> Unit,
-              icon: @Composable () -> Unit) {
+fun IconField(
+    placeholder: String, field: String, setField: (String) -> Unit,
+    icon: @Composable () -> Unit
+) {
 
     TextField(
         modifier = Modifier
@@ -98,4 +104,28 @@ fun IconField(placeholder: String, field: String, setField: (String) -> Unit,
         leadingIcon = icon,
         textStyle = TextStyle.Default.copy(fontSize = Constant.STD_FONT_SIZE * 2)
     )
+}
+
+@Composable
+fun NavigationBar() {
+    Row(
+        modifier = Modifier
+            .size(Constant.STD_LENGTH * 2, Constant.NAVBAR_HEIGHT)
+            .background(color = Constant.DARK_GRAY),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.Bottom
+    ) {}
+}
+
+@Composable
+fun GenericButton(length: Dp, height: Dp, color: Color, text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .size(length, height),
+        colors = ButtonDefaults.buttonColors(backgroundColor = color),
+        shape = RoundedCornerShape(Constant.CORNER_RADIUS),
+    ) {
+        Text(text = text, color = Constant.TEXT_GRAY, fontSize = Constant.STD_FONT_SIZE)
+    }
 }

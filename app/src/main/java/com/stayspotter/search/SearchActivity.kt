@@ -15,8 +15,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.RemoveRedEye
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.PeopleAlt
 import androidx.compose.material.icons.outlined.RemoveRedEye
@@ -26,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
@@ -35,9 +34,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stayspotter.Constant
 import com.stayspotter.R
-import com.stayspotter.common.FormField
 import com.stayspotter.common.GenericSquircleButton
+import com.stayspotter.common.GenericButton
 import com.stayspotter.common.IconField
+import com.stayspotter.common.NavigationBar
 
 class SearchActivity : AppCompatActivity() {
 
@@ -60,6 +60,18 @@ fun ButtonSpacer() {
 }
 
 @Composable
+fun Navbar() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Bottom, // Add this line
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        NavigationBar()
+    }
+}
+
+@Composable
 @Preview
 fun PreviewSearch() {
     Column(
@@ -68,6 +80,27 @@ fun PreviewSearch() {
             .background(color = Constant.BACKGROUND_COLOR),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        
+        Logo()
+
+        val (destination, setDestination) = remember { mutableStateOf("") }
+
+        Spacer(modifier = Modifier.padding(Constant.STD_PADDING * 4))
+        SearchBar(destination, setDestination)
+
+        Filters()
+    }
+
+    OverlayButton()
+
+    Navbar()
+}
+
+@Composable
+private fun Logo() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
     ) {
         val staySpotterLogo = buildAnnotatedString {
             withStyle(style = SpanStyle(color = Constant.LIGHT_EDGE_BLUE)) {
@@ -78,63 +111,79 @@ fun PreviewSearch() {
             }
         }
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                modifier = Modifier.padding(top = Constant.STD_PADDING * 2),
-                text = staySpotterLogo,
-                fontFamily = FontFamily(Font(R.font.inter_semibold)),
-                fontSize = Constant.STD_FONT_SIZE * 2
+        Text(
+            modifier = Modifier.padding(top = Constant.STD_PADDING * 2),
+            text = staySpotterLogo,
+            fontFamily = FontFamily(Font(R.font.inter_semibold)),
+            fontSize = Constant.STD_FONT_SIZE * 2
+        )
+    }
+}
+
+@Composable
+private fun Filters() {
+    Row(
+        modifier = Modifier.padding(top = Constant.STD_PADDING * 4),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        GenericSquircleButton(Constant.PETRIFIED_BLUE, icon = {
+            Icon(
+                Icons.Default.CalendarMonth, contentDescription = "Calendar",
+                tint = Constant.TEXT_GRAY,
             )
-        }
+        })
+        ButtonSpacer()
 
-        val (destination, setDestination) = remember { mutableStateOf("") }
+        GenericSquircleButton(Constant.PETRIFIED_BLUE, icon = {
+            Icon(
+                Icons.Outlined.PeopleAlt, contentDescription = "Persons",
+                tint = Constant.TEXT_GRAY,
+            )
+        })
+        ButtonSpacer()
 
-        Spacer(modifier = Modifier.padding(Constant.STD_PADDING * 4))
-        IconField(
-            placeholder = "Your destination...", field = destination,
-            setField = setDestination
-        ) {
-            Icon(Icons.Default.Search, contentDescription = "Search", tint = Constant.TEXT_GRAY)
-        }
+        GenericSquircleButton(Constant.PETRIFIED_BLUE, icon = {
+            Icon(
+                Icons.Default.AttachMoney, contentDescription = "Price",
+                tint = Constant.TEXT_GRAY,
+            )
+        })
+        ButtonSpacer()
 
-        Row(
-            modifier = Modifier.padding(top = Constant.STD_PADDING * 4),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            GenericSquircleButton(Constant.PETRIFIED_BLUE, icon = {
-                Icon(
-                    Icons.Default.CalendarMonth, contentDescription = "Calendar",
-                    tint = Constant.TEXT_GRAY,
-                )
-            })
-            ButtonSpacer()
+        GenericSquircleButton(Constant.PETRIFIED_BLUE, icon = {
+            Icon(
+                Icons.Outlined.RemoveRedEye, contentDescription = "Sights",
+                tint = Constant.TEXT_GRAY,
+            )
+        })
+    }
+}
 
-            GenericSquircleButton(Constant.PETRIFIED_BLUE, icon = {
-                Icon(
-                    Icons.Outlined.PeopleAlt, contentDescription = "Persons",
-                    tint = Constant.TEXT_GRAY,
-                )
-            })
-            ButtonSpacer()
+@Composable
+private fun SearchBar(destination: String, setDestination: (String) -> Unit) {
+    IconField(
+        placeholder = "Your destination...",
+        field = destination, setField = setDestination
+    ) {
+        Icon(Icons.Default.Search, contentDescription = "Search", tint = Constant.TEXT_GRAY)
+    }
+}
 
-            GenericSquircleButton(Constant.PETRIFIED_BLUE, icon = {
-                Icon(
-                    Icons.Default.AttachMoney, contentDescription = "Price",
-                    tint = Constant.TEXT_GRAY,
-                )
-            })
-            ButtonSpacer()
-            
-            GenericSquircleButton(Constant.PETRIFIED_BLUE, icon = {
-                Icon(
-                    Icons.Outlined.RemoveRedEye, contentDescription = "Sights",
-                    tint = Constant.TEXT_GRAY,
-                )
-            })
-        }
-
+@Composable
+private fun OverlayButton() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.size(Constant.OVERLAY_BUTTON_OFFSET))
+        GenericButton(
+            length = Constant.STD_LENGTH,
+            height = Constant.STD_HEIGHT,
+            color = Constant.PETRIFIED_BLUE,
+            text = "Spot your stay!",
+            onClick = {}
+        )
     }
 }
