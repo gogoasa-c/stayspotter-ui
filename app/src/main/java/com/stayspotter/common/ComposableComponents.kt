@@ -9,6 +9,17 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemColors
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,6 +32,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import com.stayspotter.Constant
 import com.stayspotter.R
+import com.stayspotter.search.ButtonSpacer
+import com.stayspotter.ui.theme.NavBarTheme
+import com.stayspotter.ui.theme.StaySpotterTheme
 
 @Composable
 fun GenericFormButton(text: String, color: Color, onClick: () -> Unit = {}) {
@@ -108,13 +122,27 @@ fun IconField(
 
 @Composable
 fun NavigationBar() {
-    Row(
-        modifier = Modifier
-            .size(Constant.STD_LENGTH * 2, Constant.NAVBAR_HEIGHT)
-            .background(color = Constant.DARK_GRAY),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.Bottom
-    ) {}
+    NavBarTheme {
+        androidx.compose.material3.NavigationBar(
+            modifier = Modifier.size(Constant.STD_LENGTH * 2, Constant.NAVBAR_HEIGHT),
+        ) {
+            NavigationBarItem(selected = false, onClick = { /*TODO*/ }, icon = {
+                Icon(Icons.Outlined.FavoriteBorder, contentDescription = "Profile", tint = Constant.TEXT_GRAY)
+            }, colors = NavigationBarItemDefaults.colors(
+                indicatorColor = Constant.PETRIFIED_BLUE,
+            ))
+            NavigationBarItem(selected = true, onClick = { /*TODO*/ }, icon = {
+                Icon(Icons.Filled.Search, contentDescription = "Search", tint = Constant.TEXT_GRAY)
+            }, colors = NavigationBarItemDefaults.colors(
+                indicatorColor = Constant.PETRIFIED_BLUE,
+            ))
+            NavigationBarItem(selected = false, onClick = { /*TODO*/ }, icon = {
+                Icon(Icons.Outlined.Person, contentDescription = "Profile", tint = Constant.TEXT_GRAY)
+            }, colors = NavigationBarItemDefaults.colors(
+                indicatorColor = Constant.PETRIFIED_BLUE,
+            ))
+        }
+    }
 }
 
 @Composable

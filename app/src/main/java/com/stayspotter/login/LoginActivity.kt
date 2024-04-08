@@ -38,7 +38,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            PreviewLogin()
+            LoginScreen()
         }
     }
 }
@@ -104,7 +104,7 @@ fun ParagraphSubtitle() {
 
 @Composable
 @Preview
-fun PreviewLogin() {
+fun LoginScreen() {
     val (username, setUsername) = remember { mutableStateOf("") }
     val (password, setPassword) = remember { mutableStateOf("") }
 
