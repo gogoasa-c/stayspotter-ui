@@ -18,13 +18,18 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.PeopleAlt
 import androidx.compose.material.icons.outlined.RemoveRedEye
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
@@ -34,10 +39,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stayspotter.Constant
 import com.stayspotter.R
+import com.stayspotter.common.Chip
 import com.stayspotter.common.GenericSquircleButton
 import com.stayspotter.common.GenericButton
 import com.stayspotter.common.IconField
 import com.stayspotter.common.NavigationBar
+import com.stayspotter.ui.theme.NavBarTheme
+import java.time.Instant
+import java.time.LocalDateTime
+import java.util.TimeZone
 
 class SearchActivity : AppCompatActivity() {
 
@@ -64,7 +74,7 @@ fun Navbar() {
     Column(
         modifier = Modifier
             .fillMaxSize(),
-        verticalArrangement = Arrangement.Bottom, // Add this line
+        verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         NavigationBar()
@@ -81,19 +91,28 @@ fun PreviewSearch() {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        
         Logo()
+        Spacer(modifier = Modifier.padding(Constant.STD_PADDING * 4))
 
         val (destination, setDestination) = remember { mutableStateOf("") }
+        val (filters, setFilters) = remember {
+            mutableStateOf(
+                listOf(
+                    "14th Feb. 2024 - 18th Feb. 2024",
+                    "2 persons",
+                    "€€€",
+                    "Sights"
+                )
+            )
+        }
 
-        Spacer(modifier = Modifier.padding(Constant.STD_PADDING * 4))
         SearchBar(destination, setDestination)
-
         Filters()
+        Spacer(modifier = Modifier.size(Constant.STD_PADDING))
+
+        FilterChips(filters, setFilters)
     }
-
     OverlayButton()
-
     Navbar()
 }
 
@@ -121,7 +140,20 @@ private fun Logo() {
 }
 
 @Composable
+private fun FilterChips(filters: List<String>, setFilters: (List<String>) -> Unit) {
+    filters.forEach {
+        Chip(text = it)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun Filters() {
+    val (selectedDate, setSelectedDate) = remember { mutableLongStateOf(0L) }
+    val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
+
+    val datePickerState = rememberDatePickerState()
+
     Row(
         modifier = Modifier.padding(top = Constant.STD_PADDING * 4),
         verticalAlignment = Alignment.CenterVertically,
@@ -132,6 +164,8 @@ private fun Filters() {
                 Icons.Default.CalendarMonth, contentDescription = "Calendar",
                 tint = Constant.TEXT_GRAY,
             )
+        }, onClick = {
+            setShowDialog(true)
         })
         ButtonSpacer()
 
@@ -157,6 +191,19 @@ private fun Filters() {
                 tint = Constant.TEXT_GRAY,
             )
         })
+
+        if (showDialog) {
+
+            NavBarTheme {
+                DatePickerDialog(onDismissRequest = { setShowDialog(false) }, confirmButton = {
+                    datePickerState.selectedDateMillis?.let { setSelectedDate(it) }
+                }) {
+                    DatePicker(state = datePickerState)
+                }
+            }
+
+
+        }
     }
 }
 

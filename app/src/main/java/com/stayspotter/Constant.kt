@@ -27,7 +27,7 @@ class Constant {
         val STD_SQUARE_ICON_LENGTH = 30.dp
         val OVERLAY_BUTTON_OFFSET = 400.dp
         // sizes in sp
-        val STD_FONT_SIZE: TextUnit = 12.sp
+        val STD_FONT_SIZE: TextUnit = 16.sp
         val STD_TITLE_FONT_SIZE: TextUnit = 24.sp
         val STD_SUBTITLE_FONT_SIZE: TextUnit = 18.sp
     }
