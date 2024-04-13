@@ -18,8 +18,11 @@ private val MainColorTheme = darkColorScheme(
 )
 
 private val NavigationTheme = darkColorScheme(
+    primary = Constant.LIGHT_EDGE_BLUE,
     surfaceTint = Constant.DARK_GRAY,
     surface = Constant.DARK_GRAY,
+    surfaceVariant = Constant.PETRIFIED_BLUE,
+    primaryContainer = Constant.PETRIFIED_BLUE,
 )
 
 @Composable

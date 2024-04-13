@@ -1,6 +1,8 @@
 package com.stayspotter
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -30,5 +32,9 @@ class Constant {
         val STD_FONT_SIZE: TextUnit = 16.sp
         val STD_TITLE_FONT_SIZE: TextUnit = 24.sp
         val STD_SUBTITLE_FONT_SIZE: TextUnit = 18.sp
+
+        const val CONFIRM_MESSAGE: String = "OK"
+
+        val FONT_FAMILY = FontFamily(Font(R.font.inter))
     }
 }
