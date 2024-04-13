@@ -2,6 +2,7 @@ package com.stayspotter.search
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,25 +13,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.PeopleAlt
 import androidx.compose.material.icons.outlined.RemoveRedEye
-import androidx.compose.material3.DatePicker
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePickerDefaults
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DateRangePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
@@ -39,29 +38,33 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.text.isDigitsOnly
 import com.stayspotter.Constant
 import com.stayspotter.R
 import com.stayspotter.common.Chip
+import com.stayspotter.common.FormField
 import com.stayspotter.common.GenericSquircleButton
 import com.stayspotter.common.GenericButton
 import com.stayspotter.common.IconField
 import com.stayspotter.common.NavigationBar
 import com.stayspotter.helper.convertEpochToDate
-import com.stayspotter.ui.theme.NavBarTheme
 
 class SearchActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
             PreviewSearch()
@@ -94,6 +97,9 @@ fun Navbar() {
 @Composable
 @Preview
 fun PreviewSearch() {
+    val (destination, setDestination) = remember { mutableStateOf("") }
+    val (filters, setFilters) = remember { mutableStateOf(listOf("", "", "", "", "", "", "", "")) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -101,22 +107,14 @@ fun PreviewSearch() {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.padding(Constant.STD_PADDING))
         Logo()
+
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING * 4))
 
-        val (destination, setDestination) = remember { mutableStateOf("") }
-        val (filters, setFilters) = remember {
-            mutableStateOf(
-                listOf(
-                    "14th Feb. 2024 - 18th Feb. 2024",
-                    "2 persons",
-                    "€€€",
-                    "Sights"
-                )
-            )
-        }
         SearchBar(destination, setDestination)
         Filters(filters, setFilters)
+
         Spacer(modifier = Modifier.size(Constant.STD_PADDING))
 
         FilterChips(filters, setFilters)
@@ -151,18 +149,30 @@ private fun Logo() {
 @Composable
 private fun FilterChips(filters: List<String>, setFilters: (List<String>) -> Unit) {
     filters.forEach {
-        Chip(text = it)
+        if (it == "") return@forEach
+
+        Chip(text = it) {
+            setFilters(filters.toMutableList().apply {
+                remove(it)
+            })
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Filters(filters: List<String>, setFilters: (List<String>) -> Unit) {
-    val (selectedDate, setSelectedDate) = remember { mutableLongStateOf(0L) }
-    val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
+    val (selectedStartDate, setSelectedStartDate) = remember { mutableLongStateOf(0L) }
+    val (selectedEndDate, setSelectedEndDate) = remember { mutableLongStateOf(0L) }
+    val (showCalendarDialog, setShowCalendarDialog) = remember { mutableStateOf(false) }
     val datePickerState = rememberDateRangePickerState()
 
     val (numberOfPeople, setNumberOfPeople) = remember { mutableIntStateOf(0) }
+    val (showNumberOfPeopleDialog, setShowNumberOfPeopleDialog) = remember { mutableStateOf(false) }
+
+    val (minPrice, setMinPrice) = remember { mutableStateOf("") }
+    val (maxPrice, setMaxPrice) = remember { mutableStateOf("") }
+    val (showPriceRangeDialog, setShowPriceRangeDialog) = remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier.padding(top = Constant.STD_PADDING * 4),
@@ -175,7 +185,7 @@ private fun Filters(filters: List<String>, setFilters: (List<String>) -> Unit) {
                 tint = Constant.TEXT_GRAY,
             )
         }, onClick = {
-            setShowDialog(true)
+            setShowCalendarDialog(true)
         })
         ButtonSpacer()
 
@@ -184,9 +194,7 @@ private fun Filters(filters: List<String>, setFilters: (List<String>) -> Unit) {
                 Icons.Outlined.PeopleAlt, contentDescription = "Persons",
                 tint = Constant.TEXT_GRAY,
             )
-        }) {
-
-        }
+        }) { setShowNumberOfPeopleDialog(true) }
         ButtonSpacer()
 
         GenericSquircleButton(Constant.PETRIFIED_BLUE, icon = {
@@ -194,7 +202,7 @@ private fun Filters(filters: List<String>, setFilters: (List<String>) -> Unit) {
                 Icons.Default.AttachMoney, contentDescription = "Price",
                 tint = Constant.TEXT_GRAY,
             )
-        })
+        }) { setShowPriceRangeDialog(true) }
         ButtonSpacer()
 
         GenericSquircleButton(Constant.PETRIFIED_BLUE, icon = {
@@ -204,25 +212,51 @@ private fun Filters(filters: List<String>, setFilters: (List<String>) -> Unit) {
             )
         })
 
-        if (showDialog) {
-            CalendarDialog(setShowDialog, datePickerState, setSelectedDate, filters, setFilters)
+        if (showCalendarDialog) {
+            CalendarDialog(
+                setShowCalendarDialog, datePickerState, setSelectedStartDate, setSelectedEndDate,
+                filters, setFilters
+            )
+        }
+
+        if (showNumberOfPeopleDialog) {
+            NumberOfPeopleDialog(
+                setShowNumberOfPeopleDialog,
+                numberOfPeople.toString(),
+                setNumberOfPeople,
+                filters,
+                setFilters
+            )
+        }
+
+        if (showPriceRangeDialog) {
+            PriceRangeDialog(
+                setShowPriceRangeDialog, setMinPrice, setMaxPrice, filters, setFilters
+            )
         }
     }
 }
 
+@Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CalendarDialog(
-    setShowDialog: (Boolean) -> Unit, datePickerState: DateRangePickerState,
-    setSelectedDate: (Long) -> Unit, filters: List<String>,
-    setFilters: (List<String>) -> Unit
+    setShowDialog: (Boolean) -> Unit = {},
+    datePickerState: DateRangePickerState = rememberDateRangePickerState(),
+    setSelectedStartDate: (Long) -> Unit = {},
+    setSelectedEndDate: (Long) -> Unit = {},
+    filters: List<String> = listOf(),
+    setFilters: (List<String>) -> Unit = {}
 ) {
-    Dialog(onDismissRequest = { setShowDialog(false) }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+    Dialog(
+        onDismissRequest = { setShowDialog(false) },
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Surface(
             color = Constant.BACKGROUND_COLOR,
             modifier = Modifier.fillMaxWidth(),
 
-        ) {
+            ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -242,11 +276,18 @@ private fun CalendarDialog(
                         color = Constant.PETRIFIED_BLUE,
                         text = "Select date range",
                         onClick = {
-                            val date = "${datePickerState.selectedStartDateMillis?.let {
-                                convertEpochToDate(it)
-                            }} - ${datePickerState.selectedEndDateMillis?.let {
-                                convertEpochToDate(it)
-                            }}"
+                            val date = "${
+                                datePickerState.selectedStartDateMillis?.let {
+                                    convertEpochToDate(it)
+                                }
+                            } - ${
+                                datePickerState.selectedEndDateMillis?.let {
+                                    convertEpochToDate(it)
+                                }
+                            }"
+
+                            setSelectedStartDate(datePickerState.selectedStartDateMillis!!)
+                            setSelectedEndDate(datePickerState.selectedEndDateMillis!!)
 
                             setFilters(filters.toMutableList().apply {
                                 set(0, date)
@@ -297,10 +338,6 @@ private fun CalendarDialog(
         }
 
     }
-
-
-//        }
-//    }
 }
 
 @Composable
@@ -328,5 +365,171 @@ private fun OverlayButton() {
             text = "Spot your stay!",
             onClick = {}
         )
+    }
+}
+
+@Preview
+@Composable
+private fun NumberOfPeopleDialog(
+    setShowDialog: (Boolean) -> Unit = {}, number: String = "2",
+    setNumber: (Int) -> Unit = {},
+    filters: List<String> = listOf(),
+    setFilters: (List<String>) -> Unit = {}
+) {
+
+    Dialog(
+        onDismissRequest = { setShowDialog(false) },
+    ) {
+        Card(
+            modifier = Modifier
+                .clip(RoundedCornerShape(Constant.CORNER_RADIUS)),
+            shape = RoundedCornerShape(Constant.CORNER_RADIUS),
+            colors = CardDefaults.cardColors(
+                containerColor = Constant.BACKGROUND_COLOR,
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = Constant.BACKGROUND_COLOR),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.size(Constant.STD_PADDING))
+
+                Text(
+                    text = "Number of people:",
+                    color = Constant.TEXT_GRAY,
+                    fontSize = Constant.STD_FONT_SIZE,
+                    fontFamily = Constant.FONT_FAMILY,
+                )
+
+                Spacer(modifier = Modifier.size(Constant.STD_PADDING))
+
+                FormField(
+                    placeholder = "2", field = number, setField = {
+                        if (it != "" && it.isDigitsOnly()) {
+                            setNumber(it.toInt())
+                        }
+                    },
+                    VisualTransformation.None, Constant.SMALL_BUTTON_LENGTH, Constant.STD_HEIGHT,
+                    TextAlign.Center
+                )
+
+                Row(
+                    modifier = Modifier.padding(Constant.STD_PADDING),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    GenericButton(
+                        length = Constant.SMALL_BUTTON_LENGTH,
+                        height = Constant.STD_HEIGHT,
+                        color = Constant.PETRIFIED_BLUE,
+                        text = Constant.CONFIRM_MESSAGE,
+                        onClick = {
+                            setFilters(filters.toMutableList().apply {
+                                if (number == "1") {
+                                    set(1, "$number person")
+                                } else {
+                                    set(1, "$number people")
+                                }
+                            })
+
+                            setShowDialog(false)
+                        }
+                    )
+                }
+            }
+        }
+
+
+    }
+}
+
+@Preview
+@Composable
+fun PriceRangeDialog(
+    setShowDialog: (Boolean) -> Unit = {}, setMinPrice: (String) -> Unit = {},
+    setMaxPrice: (String) -> Unit = {}, filters: List<String> = listOf(),
+    setFilters: (List<String>) -> Unit = {}
+) {
+    Dialog(
+        onDismissRequest = { setShowDialog(false) },
+    ) {
+        Card(
+            modifier = Modifier
+                .clip(RoundedCornerShape(Constant.CORNER_RADIUS)),
+            shape = RoundedCornerShape(Constant.CORNER_RADIUS),
+            colors = CardDefaults.cardColors(
+                containerColor = Constant.BACKGROUND_COLOR,
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.size(Constant.STD_PADDING))
+                Text(
+                    text = "Price range:",
+                    color = Constant.TEXT_GRAY,
+                    fontSize = Constant.STD_FONT_SIZE,
+                    fontFamily = Constant.FONT_FAMILY,
+                )
+
+                Spacer(modifier = Modifier.size(Constant.STD_PADDING))
+
+                Row(
+                    modifier = Modifier.padding(Constant.STD_PADDING),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    FormField(
+                        placeholder = "0",
+                        field = "",
+                        setField = setMinPrice,
+                        VisualTransformation.None,
+                        Constant.LARGE_BUTTON_LENGTH,
+                        Constant.STD_HEIGHT,
+                        TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.size(Constant.STD_PADDING))
+
+                    FormField(
+                        placeholder = "1000",
+                        field = "",
+                        setField = setMaxPrice,
+                        VisualTransformation.None,
+                        Constant.LARGE_BUTTON_LENGTH,
+                        Constant.STD_HEIGHT,
+                        TextAlign.Center
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.padding(Constant.STD_PADDING),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    GenericButton(
+                        length = Constant.SMALL_BUTTON_LENGTH,
+                        height = Constant.STD_HEIGHT,
+                        color = Constant.PETRIFIED_BLUE,
+                        text = Constant.CONFIRM_MESSAGE,
+                        onClick = {
+                            val priceRange = "$setMinPrice - $setMaxPrice"
+
+                            setFilters(filters.toMutableList().apply {
+                                set(2, priceRange)
+                            })
+
+                            setShowDialog(false)
+                        }
+                    )
+                }
+            }
+        }
     }
 }

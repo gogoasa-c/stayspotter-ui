@@ -22,7 +22,6 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,6 +29,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.stayspotter.Constant
 import com.stayspotter.R
@@ -85,7 +86,37 @@ fun FormField(
             textColor = Constant.TEXT_GRAY
         ),
         placeholder = {
-            Text(text = placeholder, color = Constant.TEXT_GRAY, fontSize = Constant.STD_FONT_SIZE)
+            Text(text = placeholder, color = Constant.FADED_GRAY, fontSize = Constant.STD_FONT_SIZE)
+        },
+        textStyle = TextStyle.Default.copy(fontSize = Constant.STD_FONT_SIZE),
+        visualTransformation = visualTransformation
+    )
+}
+
+@Preview
+@Composable
+fun FormField(
+    placeholder: String = "", field: String = "", setField: (String) -> Unit = {},
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    length: Dp = Constant.STD_LENGTH, height: Dp = Constant.STD_HEIGHT,
+    textAlign: TextAlign = TextAlign.Start
+) {
+    TextField(
+        modifier = Modifier
+            .size(length, height),
+        value = field,
+        onValueChange = {
+            setField(it)
+        },
+        shape = RoundedCornerShape(Constant.CORNER_RADIUS),
+        colors = TextFieldDefaults.textFieldColors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            backgroundColor = Constant.PETRIFIED_BLUE,
+            textColor = Constant.TEXT_GRAY
+        ),
+        placeholder = {
+            Text(text = placeholder, color = Constant.FADED_GRAY, fontSize = Constant.STD_FONT_SIZE, textAlign = textAlign)
         },
         textStyle = TextStyle.Default.copy(fontSize = Constant.STD_FONT_SIZE),
         visualTransformation = visualTransformation
@@ -113,7 +144,7 @@ fun IconField(
             textColor = Constant.TEXT_GRAY
         ),
         placeholder = {
-            Text(text = placeholder, color = Constant.TEXT_GRAY, fontSize = Constant.STD_FONT_SIZE)
+            Text(text = placeholder, color = Constant.FADED_GRAY, fontSize = Constant.STD_FONT_SIZE)
         },
         leadingIcon = icon,
         textStyle = TextStyle.Default.copy(fontSize = Constant.STD_FONT_SIZE)
@@ -177,11 +208,12 @@ fun GenericButton(length: Dp, height: Dp, color: Color, text: String, onClick: (
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Chip(text: String) {
+fun Chip(text: String, onClick: () -> Unit) {
     InputChip(
         modifier = Modifier.width(Constant.STD_LENGTH),
         shape = RoundedCornerShape(Constant.CORNER_RADIUS),
-        selected = true, onClick = { /*TODO*/ },
+        selected = true,
+        onClick = onClick,
         label = { Text(text, color = Constant.TEXT_GRAY, modifier = Modifier.fillMaxWidth(0.9f)) },
         trailingIcon = {
             Icon(

@@ -19,10 +19,14 @@ class Constant {
         val EDGE_BLUE: Color = Color(0xFF2EB4FC)
         val LIGHT_EDGE_BLUE: Color = Color(0xFFABE1FE)
         val TEXT_GRAY: Color = Color(0xFFEEEEEE)
+        val FADED_GRAY: Color = Color(0xFF8B8B8B)
+        val TRANSPARENT: Color = Color.Transparent
 
         // sizes in dp
         val CORNER_RADIUS: Dp = 16.dp
         val STD_LENGTH: Dp = 360.dp
+        val SMALL_BUTTON_LENGTH: Dp = 65.dp
+        val LARGE_BUTTON_LENGTH: Dp = 100.dp
         val STD_HEIGHT: Dp = 50.dp
         val NAVBAR_HEIGHT: Dp = 75.dp
         val STD_PADDING: Dp = 10.dp
