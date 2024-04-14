@@ -1,9 +1,11 @@
 package com.stayspotter.common
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.TextField
@@ -28,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -67,8 +70,11 @@ fun GenericSquircleButton(color: Color, icon: @Composable () -> Unit, onClick: (
 
 @Composable
 fun FormField(
-    placeholder: String, field: String, setField: (String) -> Unit,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    placeholder: String,
+    field: String,
+    setField: (String) -> Unit,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardType: KeyboardType = KeyboardType.Text
 ) {
 
     TextField(
@@ -89,7 +95,8 @@ fun FormField(
             Text(text = placeholder, color = Constant.FADED_GRAY, fontSize = Constant.STD_FONT_SIZE)
         },
         textStyle = TextStyle.Default.copy(fontSize = Constant.STD_FONT_SIZE),
-        visualTransformation = visualTransformation
+        visualTransformation = visualTransformation,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
     )
 }
 
@@ -99,7 +106,7 @@ fun FormField(
     placeholder: String = "", field: String = "", setField: (String) -> Unit = {},
     visualTransformation: VisualTransformation = VisualTransformation.None,
     length: Dp = Constant.STD_LENGTH, height: Dp = Constant.STD_HEIGHT,
-    textAlign: TextAlign = TextAlign.Start
+    textAlign: TextAlign = TextAlign.Start, keyboardType: KeyboardType = KeyboardType.Text
 ) {
     TextField(
         modifier = Modifier
@@ -116,10 +123,16 @@ fun FormField(
             textColor = Constant.TEXT_GRAY
         ),
         placeholder = {
-            Text(text = placeholder, color = Constant.FADED_GRAY, fontSize = Constant.STD_FONT_SIZE, textAlign = textAlign)
+            Text(
+                text = placeholder,
+                color = Constant.FADED_GRAY,
+                fontSize = Constant.STD_FONT_SIZE,
+                textAlign = textAlign
+            )
         },
         textStyle = TextStyle.Default.copy(fontSize = Constant.STD_FONT_SIZE),
-        visualTransformation = visualTransformation
+        visualTransformation = visualTransformation,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
     )
 }
 
@@ -213,14 +226,18 @@ fun Chip(text: String, onClick: () -> Unit) {
         modifier = Modifier.width(Constant.STD_LENGTH),
         shape = RoundedCornerShape(Constant.CORNER_RADIUS),
         selected = true,
-        onClick = onClick,
+        onClick = {},
         label = { Text(text, color = Constant.TEXT_GRAY, modifier = Modifier.fillMaxWidth(0.9f)) },
         trailingIcon = {
             Icon(
                 Icons.Default.Close,
                 contentDescription = "Close icon",
                 tint = Constant.TEXT_GRAY,
-                modifier = Modifier.size(InputChipDefaults.IconSize)
+                modifier = Modifier
+                    .size(InputChipDefaults.IconSize)
+                    .clickable {
+                        onClick()
+                    }
             )
         },
         colors = InputChipDefaults.inputChipColors(

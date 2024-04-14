@@ -25,10 +25,12 @@ class Constant {
         // sizes in dp
         val CORNER_RADIUS: Dp = 16.dp
         val STD_LENGTH: Dp = 360.dp
+        val SMALL_SEARCHBAR_LENGTH: Dp = 300.dp
         val SMALL_BUTTON_LENGTH: Dp = 65.dp
         val LARGE_BUTTON_LENGTH: Dp = 100.dp
         val STD_HEIGHT: Dp = 50.dp
         val NAVBAR_HEIGHT: Dp = 75.dp
+        val PICTURE_HEIGHT: Dp = 250.dp
         val STD_PADDING: Dp = 10.dp
         val STD_SQUARE_ICON_LENGTH = 30.dp
         val OVERLAY_BUTTON_OFFSET = 400.dp

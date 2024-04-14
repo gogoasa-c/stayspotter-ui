@@ -43,6 +43,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
@@ -75,7 +76,7 @@ class SearchActivity : AppCompatActivity() {
 }
 
 @Composable
-fun ButtonSpacer() {
+private fun ButtonSpacer() {
     // not actually 100% aligned but looks better
     val spacing = Constant.STD_LENGTH / 4 - Constant.STD_HEIGHT + 10.dp
 
@@ -83,7 +84,7 @@ fun ButtonSpacer() {
 }
 
 @Composable
-fun Navbar() {
+private fun Navbar() {
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -96,7 +97,7 @@ fun Navbar() {
 
 @Composable
 @Preview
-fun PreviewSearch() {
+private fun PreviewSearch() {
     val (destination, setDestination) = remember { mutableStateOf("") }
     val (filters, setFilters) = remember { mutableStateOf(listOf("", "", "", "", "", "", "", "")) }
 
@@ -231,7 +232,13 @@ private fun Filters(filters: List<String>, setFilters: (List<String>) -> Unit) {
 
         if (showPriceRangeDialog) {
             PriceRangeDialog(
-                setShowPriceRangeDialog, setMinPrice, setMaxPrice, filters, setFilters
+                setShowPriceRangeDialog,
+                minPrice,
+                setMinPrice,
+                maxPrice,
+                setMaxPrice,
+                filters,
+                setFilters
             )
         }
     }
@@ -413,7 +420,7 @@ private fun NumberOfPeopleDialog(
                         }
                     },
                     VisualTransformation.None, Constant.SMALL_BUTTON_LENGTH, Constant.STD_HEIGHT,
-                    TextAlign.Center
+                    TextAlign.Center, KeyboardType.Number
                 )
 
                 Row(
@@ -448,9 +455,13 @@ private fun NumberOfPeopleDialog(
 
 @Preview
 @Composable
-fun PriceRangeDialog(
-    setShowDialog: (Boolean) -> Unit = {}, setMinPrice: (String) -> Unit = {},
-    setMaxPrice: (String) -> Unit = {}, filters: List<String> = listOf(),
+private fun PriceRangeDialog(
+    setShowDialog: (Boolean) -> Unit = {},
+    minPrice: String = "",
+    setMinPrice: (String) -> Unit = {},
+    maxPrice: String = "",
+    setMaxPrice: (String) -> Unit = {},
+    filters: List<String> = listOf(),
     setFilters: (List<String>) -> Unit = {}
 ) {
     Dialog(
@@ -487,24 +498,34 @@ fun PriceRangeDialog(
                 ) {
                     FormField(
                         placeholder = "0",
-                        field = "",
-                        setField = setMinPrice,
+                        field = minPrice,
+                        setField = {
+                            if (it != "" && it.isDigitsOnly()) {
+                                setMinPrice(it)
+                            }
+                        },
                         VisualTransformation.None,
                         Constant.LARGE_BUTTON_LENGTH,
                         Constant.STD_HEIGHT,
-                        TextAlign.Center
+                        TextAlign.Center,
+                        KeyboardType.Number
                     )
 
                     Spacer(modifier = Modifier.size(Constant.STD_PADDING))
 
                     FormField(
                         placeholder = "1000",
-                        field = "",
-                        setField = setMaxPrice,
+                        field = maxPrice,
+                        setField = {
+                            if (it != "" && it.isDigitsOnly()) {
+                                setMaxPrice(it)
+                            }
+                        },
                         VisualTransformation.None,
                         Constant.LARGE_BUTTON_LENGTH,
                         Constant.STD_HEIGHT,
-                        TextAlign.Center
+                        TextAlign.Center,
+                        KeyboardType.Number
                     )
                 }
 
@@ -519,7 +540,7 @@ fun PriceRangeDialog(
                         color = Constant.PETRIFIED_BLUE,
                         text = Constant.CONFIRM_MESSAGE,
                         onClick = {
-                            val priceRange = "$setMinPrice - $setMaxPrice"
+                            val priceRange = "$$minPrice - $$maxPrice"
 
                             setFilters(filters.toMutableList().apply {
                                 set(2, priceRange)
