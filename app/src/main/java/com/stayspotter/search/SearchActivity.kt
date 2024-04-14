@@ -59,6 +59,7 @@ import com.stayspotter.common.FormField
 import com.stayspotter.common.GenericSquircleButton
 import com.stayspotter.common.GenericButton
 import com.stayspotter.common.IconField
+import com.stayspotter.common.Navbar
 import com.stayspotter.common.NavigationBar
 import com.stayspotter.helper.convertEpochToDate
 
@@ -81,18 +82,6 @@ private fun ButtonSpacer() {
     val spacing = Constant.STD_LENGTH / 4 - Constant.STD_HEIGHT + 10.dp
 
     Spacer(modifier = Modifier.size(spacing))
-}
-
-@Composable
-private fun Navbar() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Bottom,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        NavigationBar()
-    }
 }
 
 @Composable

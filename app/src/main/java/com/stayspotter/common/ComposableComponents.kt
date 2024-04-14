@@ -1,6 +1,9 @@
 package com.stayspotter.common
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -25,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -35,6 +39,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import com.stayspotter.Constant
 import com.stayspotter.R
 import com.stayspotter.ui.theme.NavBarTheme
@@ -243,5 +248,36 @@ fun Chip(text: String, onClick: () -> Unit) {
         colors = InputChipDefaults.inputChipColors(
             selectedContainerColor = Constant.DARK_GRAY,
         )
+    )
+}
+
+@Preview
+@Composable
+fun Navbar() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Bottom,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        NavigationBar()
+    }
+}
+
+@Preview
+@Composable
+fun SimpleText(
+    modifier: Modifier = Modifier,
+    text: String = "text",
+    textAlign: TextAlign = TextAlign.Center,
+    fontSize: TextUnit = Constant.STD_FONT_SIZE
+) {
+    Text(
+        text = text,
+        color = Constant.TEXT_GRAY,
+        fontSize = fontSize,
+        fontFamily = FontFamily(Font(R.font.inter)),
+        textAlign = textAlign,
+        modifier = modifier
     )
 }

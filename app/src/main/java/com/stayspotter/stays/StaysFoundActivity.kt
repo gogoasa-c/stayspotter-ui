@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -32,10 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import com.stayspotter.Constant
 import com.stayspotter.common.FormField
+import com.stayspotter.common.Navbar
+import com.stayspotter.common.SimpleText
 import com.stayspotter.model.Stay
 
 class StaysFoundActivity : AppCompatActivity() {
@@ -85,9 +89,11 @@ private fun StaysFound(
         Spacer(modifier = Modifier.height(Constant.STD_PADDING))
 
         stayList.forEach { stay ->
+            Divider(color = Constant.TEXT_GRAY)
             StayCard(stay)
         }
     }
+    Navbar()
 }
 
 @Preview
@@ -104,7 +110,11 @@ private fun TopBar() {
                 .align(Alignment.CenterStart),
         ) {
             IconButton(onClick = { /*TODO*/ }) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Constant.TEXT_GRAY)
+                Icon(
+                    Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Constant.TEXT_GRAY
+                )
             }
             FormField(length = Constant.SMALL_SEARCHBAR_LENGTH)
         }
@@ -117,7 +127,7 @@ private fun StayCard(
     stay: Stay = Stay("Magnificent Hotel", "Booking", "$100", listOf())
 ) {
 
-    Box (
+    Box(
         modifier = Modifier.fillMaxWidth()
     ) {
         Card(
@@ -129,24 +139,58 @@ private fun StayCard(
                 .align(Alignment.Center),
             colors = CardDefaults.cardColors(containerColor = Constant.DARK_GRAY)
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+            Box(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                SubcomposeAsyncImage(
-                    model = "https://cf.bstatic.com/xdata/images/hotel/max1280x900/29306268.jpg?k=da6334b40587fdce085e592101ed31fb9efbf82c497c602827a8fe17431c0969&o=&hp=1",
-                    contentDescription = "Picture of a stay",
-                    contentScale = ContentScale.Crop,
-                    loading = {
-                        CircularProgressIndicator(
-                            trackColor = Constant.LIGHT_EDGE_BLUE,
-                            color = Constant.EDGE_BLUE,
-                        )
-                    }
-                )
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    SubcomposeAsyncImage(
+                        model = "https://cf.bstatic.com/xdata/images/hotel/max1280x900/29306268.jpg?k=da6334b40587fdce085e592101ed31fb9efbf82c497c602827a8fe17431c0969&o=&hp=1",
+                        contentDescription = "Picture of a stay",
+                        contentScale = ContentScale.Crop,
+                        loading = {
+                            CircularProgressIndicator(
+                                trackColor = Constant.LIGHT_EDGE_BLUE,
+                                color = Constant.EDGE_BLUE,
+                            )
+                        }
+                    )
+                }
+
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    SimpleText(
+                        text = stay.stayName,
+                        modifier = Modifier.padding(
+                            start = Constant.STD_PADDING,
+                            top = Constant.STD_PADDING
+                        ),
+                        fontSize = Constant.STD_TITLE_FONT_SIZE
+                    )
+                    SimpleText(
+                        text = "Found on ${stay.foundOn}",
+                        modifier = Modifier.padding(start = Constant.STD_PADDING),
+                        fontSize = Constant.STD_FONT_SIZE
+                    )
+                }
+
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Bottom,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    SimpleText(
+                        text = "${stay.pricePerNight} / Night",
+                        modifier = Modifier.padding(Constant.STD_PADDING)
+                    )
+                }
             }
         }
+
     }
 
 }
