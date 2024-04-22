@@ -19,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -47,7 +48,7 @@ class StaysFoundActivity : AppCompatActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-//            StaysFound()
+            StaysFound()
         }
     }
 }
@@ -74,7 +75,8 @@ private fun StaysFound(
             "$100",
             listOf()
         ),
-    )
+    ),
+    searchedFor: String = "Milano"
 ) {
     val scrollState = rememberScrollState()
 
@@ -84,7 +86,7 @@ private fun StaysFound(
             .fillMaxWidth()
             .verticalScroll(scrollState)
     ) {
-        TopBar()
+        TopBar(searchedFor)
 
         Spacer(modifier = Modifier.height(Constant.STD_PADDING))
 
@@ -98,25 +100,26 @@ private fun StaysFound(
 
 @Preview
 @Composable
-private fun TopBar() {
+private fun TopBar(searchedFor: String = "Milano") {
     Box(
         modifier = Modifier.fillMaxWidth()
+            .padding(Constant.STD_PADDING)
     ) {
         Row(
             modifier = Modifier
                 .background(Constant.BACKGROUND_COLOR)
                 .fillMaxWidth()
-                .padding(Constant.STD_PADDING)
+                .padding(top = Constant.STD_PADDING)
                 .align(Alignment.CenterStart),
         ) {
             IconButton(onClick = { /*TODO*/ }) {
                 Icon(
-                    Icons.Default.ArrowBack,
+                    Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
                     tint = Constant.TEXT_GRAY
                 )
             }
-            FormField(length = Constant.SMALL_SEARCHBAR_LENGTH)
+            FormField(length = Constant.SMALL_SEARCHBAR_LENGTH, field = searchedFor, setField = {})
         }
     }
 }

@@ -26,10 +26,11 @@
 
         <activity
             android:name=".search.SearchActivity"
-            android:exported="true"
-            >
+            android:exported="true" />
 
-        </activity>
+        <activity
+            android:name=".stays.StaysFoundActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

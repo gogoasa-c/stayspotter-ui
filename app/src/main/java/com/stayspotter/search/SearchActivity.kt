@@ -1,5 +1,7 @@
 package com.stayspotter.search
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -22,7 +24,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.PeopleAlt
 import androidx.compose.material.icons.outlined.RemoveRedEye
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DateRangePicker
@@ -39,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
@@ -60,8 +62,8 @@ import com.stayspotter.common.GenericSquircleButton
 import com.stayspotter.common.GenericButton
 import com.stayspotter.common.IconField
 import com.stayspotter.common.Navbar
-import com.stayspotter.common.NavigationBar
 import com.stayspotter.helper.convertEpochToDate
+import com.stayspotter.stays.StaysFoundActivity
 
 class SearchActivity : AppCompatActivity() {
 
@@ -90,6 +92,8 @@ private fun PreviewSearch() {
     val (destination, setDestination) = remember { mutableStateOf("") }
     val (filters, setFilters) = remember { mutableStateOf(listOf("", "", "", "", "", "", "", "")) }
 
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -109,7 +113,7 @@ private fun PreviewSearch() {
 
         FilterChips(filters, setFilters)
     }
-    OverlayButton()
+    OverlayButton(context)
     Navbar()
 }
 
@@ -347,7 +351,7 @@ private fun SearchBar(destination: String, setDestination: (String) -> Unit) {
 }
 
 @Composable
-private fun OverlayButton() {
+private fun OverlayButton(context: Context) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -359,10 +363,14 @@ private fun OverlayButton() {
             height = Constant.STD_HEIGHT,
             color = Constant.PETRIFIED_BLUE,
             text = "Spot your stay!",
-            onClick = {}
+            onClick = {
+                context.startActivity(Intent(context, StaysFoundActivity::class.java))
+            }
         )
     }
 }
+
+
 
 @Preview
 @Composable
