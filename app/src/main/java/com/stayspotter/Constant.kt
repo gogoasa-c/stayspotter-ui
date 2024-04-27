@@ -20,6 +20,7 @@ class Constant {
         val LIGHT_EDGE_BLUE: Color = Color(0xFFABE1FE)
         val TEXT_GRAY: Color = Color(0xFFEEEEEE)
         val FADED_GRAY: Color = Color(0xFF8B8B8B)
+        val LIGHT_GRAY: Color = Color(0xFF616161)
         val TRANSPARENT: Color = Color.Transparent
 
         // sizes in dp
@@ -32,6 +33,8 @@ class Constant {
         val NAVBAR_HEIGHT: Dp = 75.dp
         val PICTURE_HEIGHT: Dp = 250.dp
         val STD_PADDING: Dp = 10.dp
+        val STD_BIG_PADDING: Dp = 150.dp
+        val PADDING_STAYS: Dp = 75.dp
         val STD_SQUARE_ICON_LENGTH = 30.dp
         val OVERLAY_BUTTON_OFFSET = 400.dp
         // sizes in sp

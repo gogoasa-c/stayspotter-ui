@@ -75,6 +75,12 @@ private fun StaysFound(
             "$100",
             listOf()
         ),
+        Stay(
+            "Magnificent Hotel",
+            "Booking",
+            "$100",
+            listOf()
+        ),
     ),
     searchedFor: String = "Milano"
 ) {
@@ -94,6 +100,7 @@ private fun StaysFound(
             Divider(color = Constant.TEXT_GRAY)
             StayCard(stay)
         }
+        Spacer(modifier = Modifier.height(Constant.PADDING_STAYS))
     }
     Navbar()
 }

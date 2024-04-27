@@ -175,7 +175,7 @@ fun NavigationBar() {
         androidx.compose.material3.NavigationBar(
             modifier = Modifier.size(Constant.STD_LENGTH * 2, Constant.NAVBAR_HEIGHT),
         ) {
-            val (selected, setSelected) = remember { mutableIntStateOf(0) }
+            val (selected, setSelected) = remember { mutableIntStateOf(1) }
 
             NavigationBarItem(selected = selected == 0, onClick = { setSelected(0) }, icon = {
                 Icon(

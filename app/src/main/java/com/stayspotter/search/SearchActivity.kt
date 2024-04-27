@@ -29,6 +29,7 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DateRangePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDateRangePickerState
@@ -248,10 +249,12 @@ private fun CalendarDialog(
     filters: List<String> = listOf(),
     setFilters: (List<String>) -> Unit = {}
 ) {
-    Dialog(
+    ModalBottomSheet(
         onDismissRequest = { setShowDialog(false) },
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
+        containerColor = Constant.BACKGROUND_COLOR,
+        contentColor = Constant.BACKGROUND_COLOR,
+    )
+    {
         Surface(
             color = Constant.BACKGROUND_COLOR,
             modifier = Modifier.fillMaxWidth(),
@@ -312,7 +315,7 @@ private fun CalendarDialog(
                         Text(
                             "Dates for your stay:", color = Constant.TEXT_GRAY,
                             fontSize = Constant.STD_FONT_SIZE, textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(Constant.STD_PADDING),
+                            modifier = Modifier.padding(start = Constant.STD_PADDING * 3),
                             fontFamily = Constant.FONT_FAMILY,
                         )
                     },
@@ -330,7 +333,7 @@ private fun CalendarDialog(
                         yearContentColor = Constant.TEXT_GRAY,
                         dayInSelectionRangeContainerColor = Constant.LIGHT_EDGE_BLUE,
                         dayInSelectionRangeContentColor = Constant.EDGE_BLUE,
-                    )
+                    ),
                 )
             }
 
@@ -369,7 +372,6 @@ private fun OverlayButton(context: Context) {
         )
     }
 }
-
 
 
 @Preview
