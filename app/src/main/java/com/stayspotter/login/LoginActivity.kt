@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.times
 import com.stayspotter.Constant
 import com.stayspotter.R
+import com.stayspotter.common.DefaultActivity
 import com.stayspotter.common.FormField
 import com.stayspotter.common.GenericFormButton
 import com.stayspotter.search.SearchActivity
@@ -118,7 +119,8 @@ fun LoginScreen() {
             return@loginOnClick
         }
 
-        context.startActivity(Intent(context, SearchActivity::class.java))
+//        context.startActivity(Intent(context, SearchActivity::class.java))
+        context.startActivity(Intent(context, DefaultActivity::class.java))
     }
 
     Column(

@@ -44,6 +44,10 @@ class Constant {
 
         const val CONFIRM_MESSAGE: String = "OK"
 
+        const val NAVBAR_ITEM_FAV = 0
+        const val NAVBAR_ITEM_SEARCH = 1
+        const val NAVBAR_ITEM_PROFILE = 2
+
         val FONT_FAMILY = FontFamily(Font(R.font.inter))
     }
 }

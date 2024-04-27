@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -18,13 +17,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.stayspotter.Constant
+import com.stayspotter.search.EmbeddedSearch
+import com.stayspotter.user.EmbeddedProfile
 
 class DefaultActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-
+            CommonActivity()
         }
     }
 }
@@ -32,17 +33,21 @@ class DefaultActivity : AppCompatActivity() {
 @Composable
 @Preview
 private fun CommonActivity() {
-    val (selected, setSelected) = remember { mutableIntStateOf(1) }
+    val (selected, setSelected) = remember { mutableIntStateOf(Constant.NAVBAR_ITEM_SEARCH) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Constant.BACKGROUND_COLOR),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.padding(Constant.STD_PADDING))
+    when (selected) {
+        Constant.NAVBAR_ITEM_FAV -> {
+
+        }
+
+        Constant.NAVBAR_ITEM_SEARCH -> {
+            EmbeddedSearch()
+        }
+
+        Constant.NAVBAR_ITEM_PROFILE -> {
+            EmbeddedProfile()
+        }
     }
 
-    Navbar()
+    Navbar(selected, setSelected)
 }

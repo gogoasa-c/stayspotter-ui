@@ -170,13 +170,12 @@ fun IconField(
 }
 
 @Composable
-fun NavigationBar() {
+fun NavigationBar(selected: Int, setSelected: (Int) -> Unit) {
     NavBarTheme {
         androidx.compose.material3.NavigationBar(
             modifier = Modifier.size(Constant.STD_LENGTH * 2, Constant.NAVBAR_HEIGHT),
         ) {
-            val (selected, setSelected) = remember { mutableIntStateOf(1) }
-
+//            val (selected, setSelected) = remember { mutableIntStateOf(1) }
             NavigationBarItem(selected = selected == 0, onClick = { setSelected(0) }, icon = {
                 Icon(
                     Icons.Outlined.FavoriteBorder,
@@ -251,16 +250,15 @@ fun Chip(text: String, onClick: () -> Unit) {
     )
 }
 
-@Preview
 @Composable
-fun Navbar() {
+fun Navbar(selected: Int, setSelected: (Int) -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBar()
+        NavigationBar(selected, setSelected)
     }
 }
 

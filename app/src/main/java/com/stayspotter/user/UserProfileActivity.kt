@@ -1,6 +1,5 @@
 package com.stayspotter.user
 
-import android.health.connect.datatypes.units.Percentage
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -73,7 +72,38 @@ private fun UserProfile() {
             Spacer(modifier = Modifier.size(10.dp))
             UserStats()
 
-            Navbar()
+            Navbar(1)
+        }
+
+        SettingsButton()
+    }
+}
+
+@Preview
+@Composable
+fun EmbeddedProfile() {
+    val username = "john_doe_2054"
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Constant.BACKGROUND_COLOR)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(top = Constant.STD_BIG_PADDING)
+        ) {
+            UserIcon()
+            Spacer(modifier = Modifier.size(10.dp))
+            Text(
+                text = username,
+                fontFamily = FontFamily(Font(R.font.inter_semibold)),
+                fontSize = Constant.STD_TITLE_FONT_SIZE,
+                textAlign = TextAlign.Center,
+                color = Constant.TEXT_GRAY
+            )
+            Spacer(modifier = Modifier.size(10.dp))
+            UserStats()
         }
 
         SettingsButton()

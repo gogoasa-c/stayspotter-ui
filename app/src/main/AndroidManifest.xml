@@ -31,6 +31,9 @@
         <activity
             android:name=".stays.StaysFoundActivity"
             android:exported="true" />
+
+        <activity android:name=".common.DefaultActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

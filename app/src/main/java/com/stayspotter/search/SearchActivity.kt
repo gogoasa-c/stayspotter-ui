@@ -53,7 +53,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.core.text.isDigitsOnly
 import com.stayspotter.Constant
 import com.stayspotter.R
@@ -115,7 +114,37 @@ private fun PreviewSearch() {
         FilterChips(filters, setFilters)
     }
     OverlayButton(context)
-    Navbar()
+    Navbar(1)
+}
+
+@Preview
+@Composable
+fun EmbeddedSearch() {
+    val (destination, setDestination) = remember { mutableStateOf("") }
+    val (filters, setFilters) = remember { mutableStateOf(listOf("", "", "", "", "", "", "", "")) }
+
+    val context = LocalContext.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Constant.BACKGROUND_COLOR),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.padding(Constant.STD_PADDING))
+        Logo()
+
+        Spacer(modifier = Modifier.padding(Constant.STD_PADDING * 4))
+
+        SearchBar(destination, setDestination)
+        Filters(filters, setFilters)
+
+        Spacer(modifier = Modifier.size(Constant.STD_PADDING))
+
+        FilterChips(filters, setFilters)
+    }
+    OverlayButton(context)
 }
 
 @Composable
@@ -366,10 +395,9 @@ private fun OverlayButton(context: Context) {
             height = Constant.STD_HEIGHT,
             color = Constant.PETRIFIED_BLUE,
             text = "Spot your stay!",
-            onClick = {
-                context.startActivity(Intent(context, StaysFoundActivity::class.java))
-            }
-        )
+        ) {
+            context.startActivity(Intent(context, StaysFoundActivity::class.java))
+        }
     }
 }
 
