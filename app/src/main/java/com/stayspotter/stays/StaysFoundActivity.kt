@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.times
 import coil.compose.SubcomposeAsyncImage
 import com.stayspotter.Constant
 import com.stayspotter.common.FormField
@@ -87,6 +88,8 @@ private fun StaysFound(
             .fillMaxWidth()
             .verticalScroll(scrollState)
     ) {
+        Spacer(modifier = Modifier.height(Constant.STD_NOTIFICATION_BAR_PADDING))
+
         TopBar(searchedFor)
 
         Spacer(modifier = Modifier.height(Constant.STD_PADDING))
@@ -97,7 +100,6 @@ private fun StaysFound(
         }
         Spacer(modifier = Modifier.height(Constant.PADDING_STAYS))
     }
-    Navbar(1)
 }
 
 @Preview
