@@ -1,5 +1,6 @@
 package com.stayspotter.stays
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -37,17 +38,39 @@ import com.stayspotter.Constant
 import com.stayspotter.common.FormField
 import com.stayspotter.common.Navbar
 import com.stayspotter.common.SimpleText
+import com.stayspotter.common.api.ApiClient
 import com.stayspotter.model.Stay
+import com.stayspotter.model.StayRequestDto
+import retrofit2.Call
+import retrofit2.Response
 
 class StaysFoundActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
+
             StaysFound()
         }
     }
 }
+
+//private fun findStays(intent: Intent): List<Stay> {
+//    val stayRequest = intent.getSerializableExtra("filters", StayRequestDto::class.java)
+//    val call = stayRequest?.let { ApiClient.apiService.findStay(it) }
+//
+//    call?.enqueue(object : retrofit2.Callback<List<Stay>> {
+//        override fun onResponse(call: Call<List<Stay>>, response: Response<List<Stay>>) {
+//            if (response.isSuccessful) {
+////                return response.body().
+//            }
+//        }
+//
+//        override fun onFailure(call: Call<List<Stay>>, t: Throwable) {
+//            t.printStackTrace()
+//        }
+//    }
+//}
 
 @Preview
 @Composable

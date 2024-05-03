@@ -3,6 +3,7 @@ package com.stayspotter.login
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,8 +16,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -28,12 +31,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.times
+import androidx.lifecycle.ViewModel
 import com.stayspotter.Constant
 import com.stayspotter.R
 import com.stayspotter.common.DefaultActivity
 import com.stayspotter.common.FormField
 import com.stayspotter.common.GenericFormButton
+import com.stayspotter.common.api.ApiClient
+import com.stayspotter.model.UserLoginDto
 import com.stayspotter.search.SearchActivity
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class LoginActivity : AppCompatActivity() {
 
@@ -108,19 +117,35 @@ fun ParagraphSubtitle() {
 @Composable
 @Preview
 fun LoginScreen() {
-    val (username, setUsername) = remember { mutableStateOf("") }
-    val (password, setPassword) = remember { mutableStateOf("") }
-
+    val viewModel = remember { LoginViewModel() }
     val context = LocalContext.current
 
     val loginOnClick: () -> Unit = loginOnClick@{
-        if (username != "admin" && password != "admin") {
-            Toast.makeText(context, "Incorrect username or password", Toast.LENGTH_SHORT).show()
-            return@loginOnClick
-        }
+        val call = ApiClient.apiService.login(UserLoginDto(viewModel.username.trim(),
+            viewModel.password.trim()))
 
-//        context.startActivity(Intent(context, SearchActivity::class.java))
-        context.startActivity(Intent(context, DefaultActivity::class.java))
+        call.enqueue(object : Callback<String> {
+            override fun onResponse(call: Call<String>, response: Response<String>) {
+                if (response.isSuccessful) {
+                    viewModel.jsonWebToken = response.body()!!
+                    val intent  = Intent(context, DefaultActivity::class.java)
+                    intent.putExtra(Constant.INTENT_KEY_JWT, viewModel.jsonWebToken)
+
+                    context.startActivity(intent)
+
+                    return
+                }
+
+                Toast.makeText(context, "Incorrect username or password",
+                    Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                Toast.makeText(context, "Error logging in...",
+                    Toast.LENGTH_SHORT).show()
+                Log.e("LoginActivity", "Error logging in", t)
+            }
+        })
     }
 
     Column(
@@ -135,12 +160,22 @@ fun LoginScreen() {
         ParagraphSubtitle()
         Spacer(modifier = Modifier.padding(4 * Constant.STD_PADDING))
 
-        FormField("Username", username, setUsername)
+        FormField("Username", viewModel.username, { viewModel.username = it })
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING))
-        FormField("Password", password, setPassword, PasswordVisualTransformation())
+        FormField(
+            "Password", viewModel.password, { viewModel.password = it },
+            PasswordVisualTransformation()
+        )
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING))
         GenericFormButton("Login", Constant.EDGE_BLUE, loginOnClick)
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING))
         GenericFormButton("Don't have an account? Register now!", Constant.LIGHT_EDGE_BLUE)
     }
+}
+
+class LoginViewModel : ViewModel() {
+    var username by mutableStateOf("")
+    var password by mutableStateOf("")
+
+    var jsonWebToken by mutableStateOf("")
 }
