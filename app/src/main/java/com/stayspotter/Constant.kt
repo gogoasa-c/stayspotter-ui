@@ -50,5 +50,11 @@ class Constant {
         const val NAVBAR_ITEM_PROFILE = 2
 
         val FONT_FAMILY = FontFamily(Font(R.font.inter))
+
+        const val STAYSPOTTER_URL = "https://8j12q9t9-5000.euw.devtunnels.ms/"
+        const val LOGIN_URL = "$STAYSPOTTER_URL/login"
+
+
+        const val INTENT_KEY_JWT = "jwt"
     }
 }
