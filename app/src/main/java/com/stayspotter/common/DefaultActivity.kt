@@ -31,7 +31,6 @@ class DefaultActivity : AppCompatActivity() {
 @Preview
 private fun CommonActivity(intent: Intent = Intent()) {
     val viewModel = DefaultActivityViewModel()
-//    val (selected, setSelected) = remember { mutableIntStateOf(Constant.NAVBAR_ITEM_SEARCH) }
     viewModel.jsonWebToken = intent.getStringExtra(Constant.INTENT_KEY_JWT)
         ?: throw AccessDeniedException("No JWT provided")
 
@@ -42,7 +41,7 @@ private fun CommonActivity(intent: Intent = Intent()) {
         }
 
         Constant.NAVBAR_ITEM_SEARCH -> {
-            EmbeddedSearch()
+            EmbeddedSearch(viewModel.jsonWebToken)
         }
 
         Constant.NAVBAR_ITEM_PROFILE -> {

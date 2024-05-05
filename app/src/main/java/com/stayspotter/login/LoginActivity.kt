@@ -121,8 +121,12 @@ fun LoginScreen() {
     val context = LocalContext.current
 
     val loginOnClick: () -> Unit = loginOnClick@{
-        val call = ApiClient.apiService.login(UserLoginDto(viewModel.username.trim(),
-            viewModel.password.trim()))
+        val trimmedUsername = viewModel.username.trim()
+        val trimmedPassword = viewModel.password.trim()
+
+        val userLoginDto = UserLoginDto(trimmedUsername, trimmedPassword)
+
+        val call = ApiClient.apiService.login(userLoginDto)
 
         call.enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {

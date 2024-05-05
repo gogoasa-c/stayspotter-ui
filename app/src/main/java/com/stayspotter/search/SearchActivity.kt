@@ -1,8 +1,9 @@
 package com.stayspotter.search
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -34,10 +35,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +57,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.text.isDigitsOnly
+import androidx.lifecycle.ViewModel
 import com.stayspotter.Constant
 import com.stayspotter.R
 import com.stayspotter.common.Chip
@@ -62,8 +66,13 @@ import com.stayspotter.common.GenericSquircleButton
 import com.stayspotter.common.GenericButton
 import com.stayspotter.common.IconField
 import com.stayspotter.common.Navbar
+import com.stayspotter.common.api.ApiClient
 import com.stayspotter.helper.convertEpochToDate
+import com.stayspotter.model.Stay
+import com.stayspotter.model.StayRequestDto
 import com.stayspotter.stays.StaysFoundActivity
+import retrofit2.Call
+import retrofit2.Response
 
 class SearchActivity : AppCompatActivity() {
 
@@ -89,6 +98,8 @@ private fun ButtonSpacer() {
 @Composable
 @Preview
 private fun PreviewSearch() {
+    val viewModel = SearchActivityViewModel()
+
     val (destination, setDestination) = remember { mutableStateOf("") }
     val (filters, setFilters) = remember { mutableStateOf(listOf("", "", "", "", "", "", "", "")) }
 
@@ -113,13 +124,16 @@ private fun PreviewSearch() {
 
         FilterChips(filters, setFilters)
     }
-    OverlayButton(context)
+    OverlayButton(context, viewModel)
     Navbar(1)
 }
 
 @Preview
 @Composable
-fun EmbeddedSearch() {
+fun EmbeddedSearch(jwt: String = "jwt") {
+    val viewModel = SearchActivityViewModel()
+    viewModel.jsonWebToken = jwt
+
     val (destination, setDestination) = remember { mutableStateOf("") }
     val (filters, setFilters) = remember { mutableStateOf(listOf("", "", "", "", "", "", "", "")) }
 
@@ -144,7 +158,7 @@ fun EmbeddedSearch() {
 
         FilterChips(filters, setFilters)
     }
-    OverlayButton(context)
+    OverlayButton(context, viewModel)
 }
 
 @Composable
@@ -383,7 +397,7 @@ private fun SearchBar(destination: String, setDestination: (String) -> Unit) {
 }
 
 @Composable
-private fun OverlayButton(context: Context) {
+private fun OverlayButton(context: Context, viewModel: SearchActivityViewModel) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -396,11 +410,46 @@ private fun OverlayButton(context: Context) {
             color = Constant.PETRIFIED_BLUE,
             text = "Spot your stay!",
         ) {
-            context.startActivity(Intent(context, StaysFoundActivity::class.java))
+//            context.startActivity(Intent(context, StaysFoundActivity::class.java))
+            findStays(context, viewModel)
         }
     }
 }
 
+private fun findStays(context: Context, viewModel: SearchActivityViewModel): Unit {
+    val stayRequest = StayRequestDto(
+        "Milano",
+        2,
+        2,
+        "2024-07-20",
+        "2024-07-25",
+    )
+    val call = stayRequest.let {
+        ApiClient.apiService.findStay(it, "Bearer ${viewModel.jsonWebToken}")
+    }
+
+    call.enqueue(object : retrofit2.Callback<List<Stay>> {
+        override fun onResponse(call: Call<List<Stay>>, response: Response<List<Stay>>) {
+            if (response.isSuccessful) {
+                val stayList = response.body()!!
+
+            }
+
+            Toast.makeText(
+                context, "Error while calling scraper...",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        override fun onFailure(call: Call<List<Stay>>, t: Throwable) {
+            Toast.makeText(
+                context, "Error while calling scraper...",
+                Toast.LENGTH_SHORT
+            ).show()
+            Log.e("SearchActivity", "Error while calling scraper...", t)
+        }
+    })
+}
 
 @Preview
 @Composable
@@ -580,4 +629,11 @@ private fun PriceRangeDialog(
             }
         }
     }
+}
+
+class SearchActivityViewModel : ViewModel() {
+    var jsonWebToken by mutableStateOf("")
+
+    val destination = mutableStateOf("")
+    val filters = mutableStateOf(listOf("", "", "", "", "", "", "", ""))
 }
