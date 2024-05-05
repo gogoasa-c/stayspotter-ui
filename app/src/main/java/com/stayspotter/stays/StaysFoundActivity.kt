@@ -49,28 +49,12 @@ class StaysFoundActivity : AppCompatActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-
             StaysFound()
         }
     }
 }
 
-//private fun findStays(intent: Intent): List<Stay> {
-//    val stayRequest = intent.getSerializableExtra("filters", StayRequestDto::class.java)
-//    val call = stayRequest?.let { ApiClient.apiService.findStay(it) }
-//
-//    call?.enqueue(object : retrofit2.Callback<List<Stay>> {
-//        override fun onResponse(call: Call<List<Stay>>, response: Response<List<Stay>>) {
-//            if (response.isSuccessful) {
-////                return response.body().
-//            }
-//        }
-//
-//        override fun onFailure(call: Call<List<Stay>>, t: Throwable) {
-//            t.printStackTrace()
-//        }
-//    }
-//}
+
 
 @Preview
 @Composable
@@ -80,25 +64,30 @@ private fun StaysFound(
             "Magnificent Hotel",
             "Booking",
             "$100",
-            listOf()
+//            listOf()
+            23.45,
+            12.34
         ),
         Stay(
             "Magnificent Hotel",
             "Booking",
             "$100",
-            listOf()
+            23.45,
+            12.34
         ),
         Stay(
             "Magnificent Hotel",
             "Booking",
             "$100",
-            listOf()
+            23.45,
+            12.34
         ),
         Stay(
             "Magnificent Hotel",
             "Booking",
             "$100",
-            listOf()
+            23.45,
+            12.34
         ),
     ),
     searchedFor: String = "Milano"
@@ -154,7 +143,7 @@ private fun TopBar(searchedFor: String = "Milano") {
 @Preview
 @Composable
 private fun StayCard(
-    stay: Stay = Stay("Magnificent Hotel", "Booking", "$100", listOf())
+    stay: Stay = Stay("Magnificent Hotel", "Booking", "$100", 23.54, 12.34)
 ) {
 
     Box(
@@ -194,7 +183,7 @@ private fun StayCard(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     SimpleText(
-                        text = stay.stayName,
+                        text = stay.name,
                         modifier = Modifier.padding(
                             start = Constant.STD_PADDING,
                             top = Constant.STD_PADDING
@@ -202,7 +191,7 @@ private fun StayCard(
                         fontSize = Constant.STD_TITLE_FONT_SIZE
                     )
                     SimpleText(
-                        text = "Found on ${stay.foundOn}",
+//                        text = "Found on ${stay.foundOn}",
                         modifier = Modifier.padding(start = Constant.STD_PADDING),
                         fontSize = Constant.STD_FONT_SIZE
                     )
@@ -214,7 +203,7 @@ private fun StayCard(
                     horizontalAlignment = Alignment.Start
                 ) {
                     SimpleText(
-                        text = "${stay.pricePerNight} / Night",
+                        text = "${stay.price} / Night",
                         modifier = Modifier.padding(Constant.STD_PADDING)
                     )
                 }
