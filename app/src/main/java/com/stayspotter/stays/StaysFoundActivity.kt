@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -27,12 +29,20 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import androidx.core.net.toUri
+import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import com.stayspotter.Constant
 import com.stayspotter.common.FormField
@@ -48,12 +58,17 @@ class StaysFoundActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        // todo: cast parcelable from intent.getParcelableArrayExtra to Stay
+        val stayArray = intent.getParcelableArrayExtra(
+            Constant.INTENT_KEY_STAYS,
+            Stay::class.java
+        )
+        val stayList = stayArray?.toList()
         setContent {
-            StaysFound()
+            StaysFound(stayList ?: listOf(), "meelano")
         }
     }
 }
-
 
 
 @Preview
@@ -63,14 +78,7 @@ private fun StaysFound(
         Stay(
             "Magnificent Hotel",
             "Booking",
-            "$100",
-//            listOf()
-            23.45,
-            12.34
-        ),
-        Stay(
-            "Magnificent Hotel",
-            "Booking",
+            "https://cf.bstatic.com/xdata/images/hotel/max1024x768/519461821.jpg?k=0e907fea49d593678f35f965ccffc4b220e0f709848c14347ba8f7d9800b698d&o=&hp=1",
             "$100",
             23.45,
             12.34
@@ -78,6 +86,7 @@ private fun StaysFound(
         Stay(
             "Magnificent Hotel",
             "Booking",
+            "https://cf.bstatic.com/xdata/images/hotel/max1024x768/519461821.jpg?k=0e907fea49d593678f35f965ccffc4b220e0f709848c14347ba8f7d9800b698d&o=&hp=1",
             "$100",
             23.45,
             12.34
@@ -85,6 +94,15 @@ private fun StaysFound(
         Stay(
             "Magnificent Hotel",
             "Booking",
+            "https://cf.bstatic.com/xdata/images/hotel/max1024x768/519461821.jpg?k=0e907fea49d593678f35f965ccffc4b220e0f709848c14347ba8f7d9800b698d&o=&hp=1",
+            "$100",
+            23.45,
+            12.34
+        ),
+        Stay(
+            "Magnificent Hotel",
+            "Booking",
+            "https://cf.bstatic.com/xdata/images/hotel/max1024x768/519461821.jpg?k=0e907fea49d593678f35f965ccffc4b220e0f709848c14347ba8f7d9800b698d&o=&hp=1",
             "$100",
             23.45,
             12.34
@@ -118,7 +136,8 @@ private fun StaysFound(
 @Composable
 private fun TopBar(searchedFor: String = "Milano") {
     Box(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .padding(Constant.STD_PADDING)
     ) {
         Row(
@@ -143,7 +162,14 @@ private fun TopBar(searchedFor: String = "Milano") {
 @Preview
 @Composable
 private fun StayCard(
-    stay: Stay = Stay("Magnificent Hotel", "Booking", "$100", 23.54, 12.34)
+    stay: Stay = Stay(
+        "Magnificent Hotel",
+        "Booking",
+        "https://cf.bstatic.com/xdata/images/hotel/max1024x768/519461821.jpg?k=0e907fea49d593678f35f965ccffc4b220e0f709848c14347ba8f7d9800b698d&o=&hp=1",
+        "$100",
+        23.54,
+        12.34
+    )
 ) {
 
     Box(
@@ -161,19 +187,24 @@ private fun StayCard(
             Box(
                 modifier = Modifier.fillMaxWidth()
             ) {
+                val uriHandler = LocalUriHandler.current
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize()
+                        .clickable { uriHandler.openUri(stay.link) },
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     SubcomposeAsyncImage(
-                        model = "https://cf.bstatic.com/xdata/images/hotel/max1280x900/29306268.jpg?k=da6334b40587fdce085e592101ed31fb9efbf82c497c602827a8fe17431c0969&o=&hp=1",
+                        modifier = Modifier.fillMaxWidth(),
+                        model = stay.photo,
                         contentDescription = "Picture of a stay",
                         contentScale = ContentScale.Crop,
                         loading = {
                             CircularProgressIndicator(
                                 trackColor = Constant.LIGHT_EDGE_BLUE,
                                 color = Constant.EDGE_BLUE,
+                                modifier = Modifier.scale(0.1f),
+                                strokeWidth = 15.dp
                             )
                         }
                     )
@@ -181,6 +212,7 @@ private fun StayCard(
 
                 Column(
                     modifier = Modifier.fillMaxSize()
+                        .background(Constant.BACKGROUND_COLOR.copy(alpha = 0.2f))
                 ) {
                     SimpleText(
                         text = stay.name,
@@ -190,11 +222,11 @@ private fun StayCard(
                         ),
                         fontSize = Constant.STD_TITLE_FONT_SIZE
                     )
-                    SimpleText(
+//                    SimpleText(
 //                        text = "Found on ${stay.foundOn}",
-                        modifier = Modifier.padding(start = Constant.STD_PADDING),
-                        fontSize = Constant.STD_FONT_SIZE
-                    )
+//                        modifier = Modifier.padding(start = Constant.STD_PADDING),
+//                        fontSize = Constant.STD_FONT_SIZE
+//                    )
                 }
 
                 Column(

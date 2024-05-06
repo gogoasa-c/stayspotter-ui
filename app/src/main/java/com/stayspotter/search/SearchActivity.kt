@@ -1,6 +1,7 @@
 package com.stayspotter.search
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -433,6 +434,11 @@ private fun findStays(context: Context, viewModel: SearchActivityViewModel): Uni
             if (response.isSuccessful) {
                 val stayList = response.body()!!
 
+                val intent = Intent(context, StaysFoundActivity::class.java)
+                intent.putExtra(Constant.INTENT_KEY_STAYS, stayList.toTypedArray())
+
+                context.startActivity(intent)
+                return
             }
 
             Toast.makeText(
