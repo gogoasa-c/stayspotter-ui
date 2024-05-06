@@ -56,5 +56,6 @@ class Constant {
 
 
         const val INTENT_KEY_JWT = "jwt"
+        const val INTENT_KEY_STAYS = "stays"
     }
 }
