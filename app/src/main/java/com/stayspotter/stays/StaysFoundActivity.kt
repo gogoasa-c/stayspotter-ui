@@ -58,7 +58,6 @@ class StaysFoundActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        // todo: cast parcelable from intent.getParcelableArrayExtra to Stay
         val stayArray = intent.getParcelableArrayExtra(
             Constant.INTENT_KEY_STAYS,
             Stay::class.java

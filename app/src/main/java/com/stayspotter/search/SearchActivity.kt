@@ -39,9 +39,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -81,7 +83,7 @@ class SearchActivity : AppCompatActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            PreviewSearch()
+            EmbeddedSearch()
         }
     }
 
@@ -96,39 +98,6 @@ private fun ButtonSpacer() {
     Spacer(modifier = Modifier.size(spacing))
 }
 
-@Composable
-@Preview
-private fun PreviewSearch() {
-    val viewModel = SearchActivityViewModel()
-
-    val (destination, setDestination) = remember { mutableStateOf("") }
-    val (filters, setFilters) = remember { mutableStateOf(listOf("", "", "", "", "", "", "", "")) }
-
-    val context = LocalContext.current
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Constant.BACKGROUND_COLOR),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.padding(Constant.STD_PADDING))
-        Logo()
-
-        Spacer(modifier = Modifier.padding(Constant.STD_PADDING * 4))
-
-        SearchBar(destination, setDestination)
-        Filters(filters, setFilters)
-
-        Spacer(modifier = Modifier.size(Constant.STD_PADDING))
-
-        FilterChips(filters, setFilters)
-    }
-    OverlayButton(context, viewModel)
-    Navbar(1)
-}
-
 @Preview
 @Composable
 fun EmbeddedSearch(jwt: String = "jwt") {
@@ -136,7 +105,15 @@ fun EmbeddedSearch(jwt: String = "jwt") {
     viewModel.jsonWebToken = jwt
 
     val (destination, setDestination) = remember { mutableStateOf("") }
-    val (filters, setFilters) = remember { mutableStateOf(listOf("", "", "", "", "", "", "", "")) }
+    val filters = remember {
+        mutableStateMapOf(
+            Constant.FILTER_KEY_CITY to "",
+            Constant.FILTER_KEY_ADULTS to "",
+            Constant.FILTER_KEY_ROOMS to "",
+            Constant.FILTER_KEY_PRICE_RANGE to "",
+            Constant.FILTER_KEY_STAY_PERIOD to "",
+        )
+    }
 
     val context = LocalContext.current
 
@@ -153,11 +130,11 @@ fun EmbeddedSearch(jwt: String = "jwt") {
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING * 4))
 
         SearchBar(destination, setDestination)
-        Filters(filters, setFilters)
+        Filters(filters)
 
         Spacer(modifier = Modifier.size(Constant.STD_PADDING))
 
-        FilterChips(filters, setFilters)
+        FilterChips(filters)
     }
     OverlayButton(context, viewModel)
 }
@@ -186,27 +163,27 @@ private fun Logo() {
 }
 
 @Composable
-private fun FilterChips(filters: List<String>, setFilters: (List<String>) -> Unit) {
+private fun FilterChips(
+    filters: SnapshotStateMap<String, String>
+) {
     filters.forEach {
-        if (it == "") return@forEach
+        if (it.value == "") return@forEach
 
-        Chip(text = it) {
-            setFilters(filters.toMutableList().apply {
-                remove(it)
-            })
+        Chip(text = it.value) {
+            filters.replace(it.key, "")
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Filters(filters: List<String>, setFilters: (List<String>) -> Unit) {
+private fun Filters(filters: MutableMap<String, String>) {
     val (selectedStartDate, setSelectedStartDate) = remember { mutableLongStateOf(0L) }
     val (selectedEndDate, setSelectedEndDate) = remember { mutableLongStateOf(0L) }
     val (showCalendarDialog, setShowCalendarDialog) = remember { mutableStateOf(false) }
     val datePickerState = rememberDateRangePickerState()
 
-    val (numberOfPeople, setNumberOfPeople) = remember { mutableIntStateOf(0) }
+    val (numberOfPeople, setNumberOfPeople) = remember { mutableStateOf("") }
     val (showNumberOfPeopleDialog, setShowNumberOfPeopleDialog) = remember { mutableStateOf(false) }
 
     val (minPrice, setMinPrice) = remember { mutableStateOf("") }
@@ -254,17 +231,16 @@ private fun Filters(filters: List<String>, setFilters: (List<String>) -> Unit) {
         if (showCalendarDialog) {
             CalendarDialog(
                 setShowCalendarDialog, datePickerState, setSelectedStartDate, setSelectedEndDate,
-                filters, setFilters
+                filters
             )
         }
 
         if (showNumberOfPeopleDialog) {
             NumberOfPeopleDialog(
                 setShowNumberOfPeopleDialog,
-                numberOfPeople.toString(),
+                numberOfPeople,
                 setNumberOfPeople,
                 filters,
-                setFilters
             )
         }
 
@@ -276,7 +252,6 @@ private fun Filters(filters: List<String>, setFilters: (List<String>) -> Unit) {
                 maxPrice,
                 setMaxPrice,
                 filters,
-                setFilters
             )
         }
     }
@@ -290,8 +265,7 @@ private fun CalendarDialog(
     datePickerState: DateRangePickerState = rememberDateRangePickerState(),
     setSelectedStartDate: (Long) -> Unit = {},
     setSelectedEndDate: (Long) -> Unit = {},
-    filters: List<String> = listOf(),
-    setFilters: (List<String>) -> Unit = {}
+    filters: MutableMap<String, String> = mutableMapOf(),
 ) {
     ModalBottomSheet(
         onDismissRequest = { setShowDialog(false) },
@@ -323,22 +297,20 @@ private fun CalendarDialog(
                         color = Constant.PETRIFIED_BLUE,
                         text = "Select date range",
                         onClick = {
-                            val date = "${
-                                datePickerState.selectedStartDateMillis?.let {
-                                    convertEpochToDate(it)
-                                }
-                            } - ${
-                                datePickerState.selectedEndDateMillis?.let {
-                                    convertEpochToDate(it)
-                                }
-                            }"
+
+                            val checkInDate = datePickerState.selectedStartDateMillis?.let {
+                                convertEpochToDate(it)
+                            }!!
+
+                            val checkOutDate = datePickerState.selectedEndDateMillis?.let {
+                                convertEpochToDate(it)
+                            }!!
+
+                            filters[Constant.FILTER_KEY_STAY_PERIOD] =
+                                "Stay period: $checkInDate - $checkOutDate"
 
                             setSelectedStartDate(datePickerState.selectedStartDateMillis!!)
                             setSelectedEndDate(datePickerState.selectedEndDateMillis!!)
-
-                            setFilters(filters.toMutableList().apply {
-                                set(0, date)
-                            })
 
                             setShowDialog(false)
                         }
@@ -411,7 +383,6 @@ private fun OverlayButton(context: Context, viewModel: SearchActivityViewModel) 
             color = Constant.PETRIFIED_BLUE,
             text = "Spot your stay!",
         ) {
-//            context.startActivity(Intent(context, StaysFoundActivity::class.java))
             findStays(context, viewModel)
         }
     }
@@ -461,9 +432,8 @@ private fun findStays(context: Context, viewModel: SearchActivityViewModel): Uni
 @Composable
 private fun NumberOfPeopleDialog(
     setShowDialog: (Boolean) -> Unit = {}, number: String = "2",
-    setNumber: (Int) -> Unit = {},
-    filters: List<String> = listOf(),
-    setFilters: (List<String>) -> Unit = {}
+    setNumber: (String) -> Unit = {},
+    filters: MutableMap<String, String> = mutableMapOf(),
 ) {
 
     Dialog(
@@ -497,8 +467,8 @@ private fun NumberOfPeopleDialog(
 
                 FormField(
                     placeholder = "2", field = number, setField = {
-                        if (it != "" && it.isDigitsOnly()) {
-                            setNumber(it.toInt())
+                        if (it.isDigitsOnly()) {
+                            setNumber(it)
                         }
                     },
                     VisualTransformation.None, Constant.SMALL_BUTTON_LENGTH, Constant.STD_HEIGHT,
@@ -516,13 +486,10 @@ private fun NumberOfPeopleDialog(
                         color = Constant.PETRIFIED_BLUE,
                         text = Constant.CONFIRM_MESSAGE,
                         onClick = {
-                            setFilters(filters.toMutableList().apply {
-                                if (number == "1") {
-                                    set(1, "$number person")
-                                } else {
-                                    set(1, "$number people")
-                                }
-                            })
+                            when (number) {
+                                "1" -> filters[Constant.FILTER_KEY_ADULTS] = "$number person"
+                                else -> filters[Constant.FILTER_KEY_ADULTS] = "$number people"
+                            }
 
                             setShowDialog(false)
                         }
@@ -543,8 +510,7 @@ private fun PriceRangeDialog(
     setMinPrice: (String) -> Unit = {},
     maxPrice: String = "",
     setMaxPrice: (String) -> Unit = {},
-    filters: List<String> = listOf(),
-    setFilters: (List<String>) -> Unit = {}
+    filters: MutableMap<String, String> = mutableMapOf(),
 ) {
     Dialog(
         onDismissRequest = { setShowDialog(false) },
@@ -599,7 +565,7 @@ private fun PriceRangeDialog(
                         placeholder = "1000",
                         field = maxPrice,
                         setField = {
-                            if (it != "" && it.isDigitsOnly()) {
+                            if (it.isDigitsOnly()) {
                                 setMaxPrice(it)
                             }
                         },
@@ -622,11 +588,8 @@ private fun PriceRangeDialog(
                         color = Constant.PETRIFIED_BLUE,
                         text = Constant.CONFIRM_MESSAGE,
                         onClick = {
-                            val priceRange = "$$minPrice - $$maxPrice"
-
-                            setFilters(filters.toMutableList().apply {
-                                set(2, priceRange)
-                            })
+                            filters[Constant.FILTER_KEY_PRICE_RANGE] =
+                                "Price range: $$minPrice - $$maxPrice"
 
                             setShowDialog(false)
                         }
