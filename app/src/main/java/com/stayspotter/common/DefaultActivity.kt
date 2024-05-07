@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
@@ -30,18 +31,20 @@ class DefaultActivity : AppCompatActivity() {
 @Composable
 @Preview
 private fun CommonActivity(intent: Intent = Intent()) {
-    val viewModel = DefaultActivityViewModel()
-    viewModel.jsonWebToken = intent.getStringExtra(Constant.INTENT_KEY_JWT)
-        ?: throw AccessDeniedException("No JWT provided")
+    val (selected, setSelected) = remember { mutableIntStateOf(Constant.NAVBAR_ITEM_SEARCH) }
+    val (jsonWebToken, setJsonWebToken) = remember { mutableStateOf("") }
+
+    setJsonWebToken(intent.getStringExtra(Constant.INTENT_KEY_JWT)
+        ?: throw AccessDeniedException("No JWT provided"))
 
 
-    when (viewModel.selected) {
+    when (selected) {
         Constant.NAVBAR_ITEM_FAV -> {
 
         }
 
         Constant.NAVBAR_ITEM_SEARCH -> {
-            EmbeddedSearch(viewModel.jsonWebToken)
+            EmbeddedSearch(jsonWebToken)
         }
 
         Constant.NAVBAR_ITEM_PROFILE -> {
@@ -49,11 +52,5 @@ private fun CommonActivity(intent: Intent = Intent()) {
         }
     }
 
-    Navbar(viewModel.selected) { viewModel.selected = it }
-}
-
-class DefaultActivityViewModel : ViewModel() {
-    var selected by mutableIntStateOf(Constant.NAVBAR_ITEM_SEARCH)
-
-    var jsonWebToken by mutableStateOf("")
+    Navbar(selected, setSelected)
 }

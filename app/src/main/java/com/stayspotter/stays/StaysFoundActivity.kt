@@ -64,7 +64,10 @@ class StaysFoundActivity : AppCompatActivity() {
         )
         val stayList = stayArray?.toList()
         setContent {
-            StaysFound(stayList ?: listOf(), "meelano")
+            StaysFound(
+                stayList ?: listOf(),
+                intent.getStringExtra(Constant.INTENT_KEY_CITY) ?: ""
+            )
         }
     }
 }
@@ -188,7 +191,8 @@ private fun StayCard(
             ) {
                 val uriHandler = LocalUriHandler.current
                 Column(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
                         .clickable { uriHandler.openUri(stay.link) },
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -210,7 +214,8 @@ private fun StayCard(
                 }
 
                 Column(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
                         .background(Constant.BACKGROUND_COLOR.copy(alpha = 0.2f))
                 ) {
                     SimpleText(
