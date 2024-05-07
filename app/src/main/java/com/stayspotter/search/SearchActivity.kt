@@ -36,13 +36,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,7 +65,6 @@ import com.stayspotter.common.FormField
 import com.stayspotter.common.GenericSquircleButton
 import com.stayspotter.common.GenericButton
 import com.stayspotter.common.IconField
-import com.stayspotter.common.Navbar
 import com.stayspotter.common.api.ApiClient
 import com.stayspotter.helper.convertEpochToDate
 import com.stayspotter.model.Stay
@@ -102,7 +98,7 @@ private fun ButtonSpacer() {
 @Composable
 fun EmbeddedSearch(jwt: String = "jwt") {
     val viewModel = SearchActivityViewModel()
-    viewModel.jsonWebToken = jwt
+    viewModel.jsonWebToken.value = jwt
 
     val (destination, setDestination) = remember { mutableStateOf("") }
     val filters = remember {
@@ -117,6 +113,8 @@ fun EmbeddedSearch(jwt: String = "jwt") {
 
     val context = LocalContext.current
 
+//    val setDestination: (String) -> Unit = { viewModel.destination.value = it }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -130,13 +128,13 @@ fun EmbeddedSearch(jwt: String = "jwt") {
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING * 4))
 
         SearchBar(destination, setDestination)
-        Filters(filters)
+        Filters(filters, viewModel)
 
         Spacer(modifier = Modifier.size(Constant.STD_PADDING))
 
         FilterChips(filters)
     }
-    OverlayButton(context, viewModel)
+    OverlayButton(context, viewModel, destination)
 }
 
 @Composable
@@ -177,18 +175,49 @@ private fun FilterChips(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Filters(filters: MutableMap<String, String>) {
-    val (selectedStartDate, setSelectedStartDate) = remember { mutableLongStateOf(0L) }
-    val (selectedEndDate, setSelectedEndDate) = remember { mutableLongStateOf(0L) }
-    val (showCalendarDialog, setShowCalendarDialog) = remember { mutableStateOf(false) }
+private fun Filters(filters: MutableMap<String, String>, viewModel: SearchActivityViewModel) {
+
+//    val setSelectedStartDate: (Long) -> Unit = {
+//        viewModel.selectedStartDate.longValue = it
+//    }
+//
+//    val setSelectedEndDate: (Long) -> Unit = {
+//        viewModel.selectedEndDate.longValue = it
+//    }
+
+    val setSelectedStartDate: (String) -> Unit = {
+        viewModel.selectedStartDate.value = it
+    }
+
+    val setSelectedEndDate: (String) -> Unit = {
+        viewModel.selectedEndDate.value = it
+    }
+
+    val setShowCalendarDialog: (Boolean) -> Unit = {
+        viewModel.showCalendarDialog.value = it
+    }
+
+    val setNumberOfPeople: (String) -> Unit = {
+        viewModel.numberOfPeople.value = it
+    }
+
+    val setShowNumberOfPeopleDialog: (Boolean) -> Unit = {
+        viewModel.showNumberOfPeopleDialog.value = it
+    }
+
+    val setMinPrice: (String) -> Unit = {
+        viewModel.minPrice.value = it
+    }
+
+    val setMaxPrice: (String) -> Unit = {
+        viewModel.maxPrice.value = it
+    }
+
+    val setShowPriceRangeDialog: (Boolean) -> Unit = {
+        viewModel.showPriceRangeDialog.value = it
+    }
+
     val datePickerState = rememberDateRangePickerState()
-
-    val (numberOfPeople, setNumberOfPeople) = remember { mutableStateOf("") }
-    val (showNumberOfPeopleDialog, setShowNumberOfPeopleDialog) = remember { mutableStateOf(false) }
-
-    val (minPrice, setMinPrice) = remember { mutableStateOf("") }
-    val (maxPrice, setMaxPrice) = remember { mutableStateOf("") }
-    val (showPriceRangeDialog, setShowPriceRangeDialog) = remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier.padding(top = Constant.STD_PADDING * 4),
@@ -228,28 +257,28 @@ private fun Filters(filters: MutableMap<String, String>) {
             )
         })
 
-        if (showCalendarDialog) {
+        if (viewModel.showCalendarDialog.value) {
             CalendarDialog(
                 setShowCalendarDialog, datePickerState, setSelectedStartDate, setSelectedEndDate,
                 filters
             )
         }
 
-        if (showNumberOfPeopleDialog) {
+        if (viewModel.showNumberOfPeopleDialog.value) {
             NumberOfPeopleDialog(
                 setShowNumberOfPeopleDialog,
-                numberOfPeople,
+                viewModel.numberOfPeople.value,
                 setNumberOfPeople,
                 filters,
             )
         }
 
-        if (showPriceRangeDialog) {
+        if (viewModel.showPriceRangeDialog.value) {
             PriceRangeDialog(
                 setShowPriceRangeDialog,
-                minPrice,
+                viewModel.minPrice.value,
                 setMinPrice,
-                maxPrice,
+                viewModel.maxPrice.value,
                 setMaxPrice,
                 filters,
             )
@@ -263,8 +292,8 @@ private fun Filters(filters: MutableMap<String, String>) {
 private fun CalendarDialog(
     setShowDialog: (Boolean) -> Unit = {},
     datePickerState: DateRangePickerState = rememberDateRangePickerState(),
-    setSelectedStartDate: (Long) -> Unit = {},
-    setSelectedEndDate: (Long) -> Unit = {},
+    setSelectedStartDate: (String) -> Unit = {},
+    setSelectedEndDate: (String) -> Unit = {},
     filters: MutableMap<String, String> = mutableMapOf(),
 ) {
     ModalBottomSheet(
@@ -309,8 +338,8 @@ private fun CalendarDialog(
                             filters[Constant.FILTER_KEY_STAY_PERIOD] =
                                 "Stay period: $checkInDate - $checkOutDate"
 
-                            setSelectedStartDate(datePickerState.selectedStartDateMillis!!)
-                            setSelectedEndDate(datePickerState.selectedEndDateMillis!!)
+                            setSelectedStartDate(checkInDate)
+                            setSelectedEndDate(checkOutDate)
 
                             setShowDialog(false)
                         }
@@ -370,7 +399,7 @@ private fun SearchBar(destination: String, setDestination: (String) -> Unit) {
 }
 
 @Composable
-private fun OverlayButton(context: Context, viewModel: SearchActivityViewModel) {
+private fun OverlayButton(context: Context, viewModel: SearchActivityViewModel, destination: String) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -383,29 +412,35 @@ private fun OverlayButton(context: Context, viewModel: SearchActivityViewModel) 
             color = Constant.PETRIFIED_BLUE,
             text = "Spot your stay!",
         ) {
-            findStays(context, viewModel)
+            findStays(context, viewModel, destination)
         }
     }
 }
 
-private fun findStays(context: Context, viewModel: SearchActivityViewModel): Unit {
-    val stayRequest = StayRequestDto(
-        "Milano",
-        2,
-        2,
-        "2024-07-20",
-        "2024-07-25",
-    )
+private fun findStays(context: Context, viewModel: SearchActivityViewModel, destination: String): Unit {
+    val stayRequest = StayRequestDto()
+
+//    stayRequest.city = viewModel.destination.value
+    stayRequest.city = destination
+    stayRequest.adults = viewModel.numberOfPeople.value.toIntOrNull() ?: 2
+    // todo: why are these fields not set???? please
+    // apparently it works if you set it last? lol
+    stayRequest.checkIn = viewModel.selectedStartDate.value
+    stayRequest.checkOut = viewModel.selectedEndDate.value
+    stayRequest.priceRangeStart = viewModel.minPrice.value.toIntOrNull() ?: 0
+    stayRequest.priceRangeEnd = viewModel.maxPrice.value.toIntOrNull() ?: 1000
+
     val call = stayRequest.let {
-        ApiClient.apiService.findStay(it, "Bearer ${viewModel.jsonWebToken}")
+        ApiClient.apiService.findStay(it, "Bearer ${viewModel.jsonWebToken.value}")
     }
+    val intent = Intent(context, StaysFoundActivity::class.java)
+    intent.putExtra(Constant.INTENT_KEY_CITY, destination)
 
     call.enqueue(object : retrofit2.Callback<List<Stay>> {
         override fun onResponse(call: Call<List<Stay>>, response: Response<List<Stay>>) {
             if (response.isSuccessful) {
                 val stayList = response.body()!!
 
-                val intent = Intent(context, StaysFoundActivity::class.java)
                 intent.putExtra(Constant.INTENT_KEY_STAYS, stayList.toTypedArray())
 
                 context.startActivity(intent)
@@ -601,8 +636,21 @@ private fun PriceRangeDialog(
 }
 
 class SearchActivityViewModel : ViewModel() {
-    var jsonWebToken by mutableStateOf("")
+    val jsonWebToken = mutableStateOf("")
 
-    val destination = mutableStateOf("")
-    val filters = mutableStateOf(listOf("", "", "", "", "", "", "", ""))
+    // filters + destination
+//    val destination = mutableStateOf("")
+
+//    val selectedStartDate = mutableLongStateOf(0L)
+//    val selectedEndDate = mutableLongStateOf(0L )
+    val selectedStartDate = mutableStateOf("")
+    val selectedEndDate = mutableStateOf("")
+    val showCalendarDialog = mutableStateOf(false)
+
+    val numberOfPeople = mutableStateOf("")
+    val showNumberOfPeopleDialog = mutableStateOf(false)
+
+    val minPrice = mutableStateOf("")
+    val maxPrice = mutableStateOf("")
+    val showPriceRangeDialog = mutableStateOf(false)
 }

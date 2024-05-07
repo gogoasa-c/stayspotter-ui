@@ -57,14 +57,11 @@ class Constant {
 
         const val INTENT_KEY_JWT = "jwt"
         const val INTENT_KEY_STAYS = "stays"
+        const val INTENT_KEY_CITY = "city"
 
         const val FILTER_KEY_CITY = "city"
         const val FILTER_KEY_ADULTS = "adults"
         const val FILTER_KEY_ROOMS = "rooms"
-//        const val FILTER_KEY_CHECKIN = "checkIn"
-//        const val FILTER_KEY_CHECKOUT = "checkOut"
-//        const val FILTER_KEY_MIN_PRICE = "minPrice"
-//        const val FILTER_KEY_MAX_PRICE = "maxPrice"
         const val FILTER_KEY_PRICE_RANGE = "priceRange"
         const val FILTER_KEY_STAY_PERIOD = "stayPeriod"
     }

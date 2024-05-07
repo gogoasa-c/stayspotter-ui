@@ -13,5 +13,5 @@ fun convertEpochToDate(epochTimeMillis: Long): String {
     return Instant.ofEpochMilli(epochTimeMillis)
         .atZone(ZoneId.systemDefault())
         .toLocalDateTime()
-        .format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 }
