@@ -97,7 +97,7 @@ private fun ButtonSpacer() {
 @Preview
 @Composable
 fun EmbeddedSearch(jwt: String = "jwt") {
-    val viewModel = SearchActivityViewModel()
+    val viewModel = remember { SearchActivityViewModel() }
     viewModel.jsonWebToken.value = jwt
 
     val (destination, setDestination) = remember { mutableStateOf("") }
@@ -423,12 +423,13 @@ private fun findStays(context: Context, viewModel: SearchActivityViewModel, dest
 //    stayRequest.city = viewModel.destination.value
     stayRequest.city = destination
     stayRequest.adults = viewModel.numberOfPeople.value.toIntOrNull() ?: 2
+    stayRequest.priceRangeStart = viewModel.minPrice.value.toIntOrNull() ?: 0
+    stayRequest.priceRangeEnd = viewModel.maxPrice.value.toIntOrNull() ?: 1000
+
     // todo: why are these fields not set???? please
     // apparently it works if you set it last? lol
     stayRequest.checkIn = viewModel.selectedStartDate.value
     stayRequest.checkOut = viewModel.selectedEndDate.value
-    stayRequest.priceRangeStart = viewModel.minPrice.value.toIntOrNull() ?: 0
-    stayRequest.priceRangeEnd = viewModel.maxPrice.value.toIntOrNull() ?: 1000
 
     val call = stayRequest.let {
         ApiClient.apiService.findStay(it, "Bearer ${viewModel.jsonWebToken.value}")

@@ -22,12 +22,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.times
@@ -37,8 +39,11 @@ import com.stayspotter.R
 import com.stayspotter.common.DefaultActivity
 import com.stayspotter.common.FormField
 import com.stayspotter.common.GenericFormButton
+import com.stayspotter.common.LoadingIndicator
+import com.stayspotter.common.SimpleText
 import com.stayspotter.common.api.ApiClient
 import com.stayspotter.model.UserLoginDto
+import com.stayspotter.model.UserRegisterDto
 import com.stayspotter.search.SearchActivity
 import retrofit2.Call
 import retrofit2.Callback
@@ -117,12 +122,19 @@ fun ParagraphSubtitle() {
 @Composable
 @Preview
 fun LoginScreen() {
-    val viewModel = remember { LoginViewModel() }
+    val (username, setUsername) = remember { mutableStateOf("") }
+    val (password, setPassword) = remember { mutableStateOf("") }
+
+    val (jsonWebToken, setJsonWebToken) = remember { mutableStateOf("") }
+    val (isLoading, setIsLoading) = remember { mutableStateOf(false) }
+
     val context = LocalContext.current
 
     val loginOnClick: () -> Unit = loginOnClick@{
-        val trimmedUsername = viewModel.username.trim()
-        val trimmedPassword = viewModel.password.trim()
+        setIsLoading(true)
+
+        val trimmedUsername = username.trim()
+        val trimmedPassword = password.trim()
 
         val userLoginDto = UserLoginDto(trimmedUsername, trimmedPassword)
 
@@ -131,25 +143,33 @@ fun LoginScreen() {
         call.enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
                 if (response.isSuccessful) {
-                    viewModel.jsonWebToken = response.body()!!
+//                    setJsonWebToken(response.body() ?: "")
                     val intent  = Intent(context, DefaultActivity::class.java)
-                    intent.putExtra(Constant.INTENT_KEY_JWT, viewModel.jsonWebToken)
+                    intent.putExtra(Constant.INTENT_KEY_JWT, response.body()!!)
+
+                    setIsLoading(false)
 
                     context.startActivity(intent)
 
                     return
                 }
 
+                setIsLoading(false)
                 Toast.makeText(context, "Incorrect username or password",
                     Toast.LENGTH_SHORT).show()
             }
 
             override fun onFailure(call: Call<String>, t: Throwable) {
+                setIsLoading(false)
                 Toast.makeText(context, "Error logging in...",
                     Toast.LENGTH_SHORT).show()
                 Log.e("LoginActivity", "Error logging in", t)
             }
         })
+    }
+
+    val registerOnClick: () -> Unit = {
+        context.startActivity(Intent(context, RegisterActivity::class.java))
     }
 
     Column(
@@ -164,22 +184,19 @@ fun LoginScreen() {
         ParagraphSubtitle()
         Spacer(modifier = Modifier.padding(4 * Constant.STD_PADDING))
 
-        FormField("Username", viewModel.username, { viewModel.username = it })
+        FormField("Username", username, setUsername)
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING))
         FormField(
-            "Password", viewModel.password, { viewModel.password = it },
+            "Password", password, setPassword,
             PasswordVisualTransformation()
         )
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING))
         GenericFormButton("Login", Constant.EDGE_BLUE, loginOnClick)
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING))
-        GenericFormButton("Don't have an account? Register now!", Constant.LIGHT_EDGE_BLUE)
+        GenericFormButton("Don't have an account? Register now!", Constant.LIGHT_EDGE_BLUE,
+            registerOnClick)
     }
-}
 
-class LoginViewModel : ViewModel() {
-    var username by mutableStateOf("")
-    var password by mutableStateOf("")
+    LoadingIndicator(isLoading)
 
-    var jsonWebToken by mutableStateOf("")
 }

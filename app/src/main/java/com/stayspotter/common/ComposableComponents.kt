@@ -1,5 +1,6 @@
 package com.stayspotter.common
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
@@ -278,4 +280,23 @@ fun SimpleText(
         textAlign = textAlign,
         modifier = modifier
     )
+}
+
+@Preview
+@Composable
+fun LoadingIndicator(isLoading: Boolean = true) {
+    if (isLoading) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(enabled = false) {}
+                .background(Constant.BACKGROUND_COLOR.copy(alpha = 0.5f)),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator(
+                color = Constant.EDGE_BLUE
+            )
+        }
+    }
 }

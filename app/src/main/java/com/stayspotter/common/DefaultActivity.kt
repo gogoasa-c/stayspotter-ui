@@ -32,11 +32,13 @@ class DefaultActivity : AppCompatActivity() {
 @Preview
 private fun CommonActivity(intent: Intent = Intent()) {
     val (selected, setSelected) = remember { mutableIntStateOf(Constant.NAVBAR_ITEM_SEARCH) }
-    val (jsonWebToken, setJsonWebToken) = remember { mutableStateOf("") }
+//    val (jsonWebToken, setJsonWebToken) = remember { mutableStateOf("") }
+    val jsonWebToken = remember { mutableStateOf("")}
 
-    setJsonWebToken(intent.getStringExtra(Constant.INTENT_KEY_JWT)
-        ?: throw AccessDeniedException("No JWT provided"))
-
+//    setJsonWebToken(intent.getStringExtra(Constant.INTENT_KEY_JWT)
+//        ?: throw AccessDeniedException("No JWT provided"))
+    jsonWebToken.value = intent.getStringExtra(Constant.INTENT_KEY_JWT)
+        ?: throw AccessDeniedException("No JWT provided")
 
     when (selected) {
         Constant.NAVBAR_ITEM_FAV -> {
@@ -44,7 +46,7 @@ private fun CommonActivity(intent: Intent = Intent()) {
         }
 
         Constant.NAVBAR_ITEM_SEARCH -> {
-            EmbeddedSearch(jsonWebToken)
+            EmbeddedSearch(jsonWebToken.value)
         }
 
         Constant.NAVBAR_ITEM_PROFILE -> {
