@@ -4,6 +4,7 @@ import com.stayspotter.model.Stay
 import com.stayspotter.model.StayRequestDto
 import com.stayspotter.model.UserLoginDto
 import com.stayspotter.model.UserRegisterDto
+import com.stayspotter.model.UserRegisterResponseDto
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.FormUrlEncoded
@@ -18,7 +19,7 @@ interface ApiService {
 
     @Headers("Content-Type: application/json")
     @POST("user/new")
-    fun register(@Body userRegisterDto: UserRegisterDto): Call<String>
+    fun register(@Body userRegisterDto: UserRegisterDto): Call<UserRegisterResponseDto>
 
     @Headers("Content-Type: application/json")
     @POST("stay")
