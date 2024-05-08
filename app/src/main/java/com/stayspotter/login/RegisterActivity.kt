@@ -36,6 +36,7 @@ import com.stayspotter.common.GenericFormButton
 import com.stayspotter.common.LoadingIndicator
 import com.stayspotter.common.api.ApiClient
 import com.stayspotter.model.UserRegisterDto
+import com.stayspotter.model.UserRegisterResponseDto
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -44,15 +45,16 @@ class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
         setContent {
-            Register()
+            Register { finish() }
         }
     }
 }
 
 @Preview
 @Composable
-private fun Register() {
+private fun Register(finish: () -> Unit = {}) {
     val (username, setUsername) = remember { mutableStateOf("") }
     val (password, setPassword) = remember { mutableStateOf("") }
     val (passwordAgain, setPasswordAgain) = remember { mutableStateOf("") }
@@ -68,21 +70,25 @@ private fun Register() {
 
         val call = ApiClient.apiService.register(userRegisterDto)
 
-        call.enqueue(object : Callback<String> {
-            override fun onResponse(call: Call<String>, response: Response<String>) {
+        call.enqueue(object : Callback<UserRegisterResponseDto> {
+            override fun onResponse(call: Call<UserRegisterResponseDto>, response: Response<UserRegisterResponseDto>) {
                 if (response.isSuccessful) {
                     setIsLoading(false)
                     Toast.makeText(context, "Account created!", Toast.LENGTH_SHORT).show()
+                    finish()
+                    return
                 }
 
                 setIsLoading(false)
                 Toast.makeText(context, "Error creating account...", Toast.LENGTH_SHORT).show()
+                finish()
             }
 
-            override fun onFailure(call: Call<String>, t: Throwable) {
+            override fun onFailure(call: Call<UserRegisterResponseDto>, t: Throwable) {
                 setIsLoading(false)
                 Toast.makeText(context, "Error creating account...", Toast.LENGTH_SHORT).show()
                 Log.e("LoginActivity", "Error creating account", t)
+                finish()
             }
         })
     }
@@ -119,7 +125,7 @@ private fun Register() {
             PasswordVisualTransformation()
         )
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING))
-        GenericFormButton("Create account!", Constant.EDGE_BLUE) {}
+        GenericFormButton("Create account!", Constant.EDGE_BLUE, registerOnClick)
 
     }
 
