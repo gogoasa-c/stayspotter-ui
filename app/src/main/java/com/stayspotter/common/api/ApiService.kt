@@ -1,5 +1,6 @@
 package com.stayspotter.common.api
 
+import com.stayspotter.model.FavouriteStay
 import com.stayspotter.model.Stay
 import com.stayspotter.model.StayRequestDto
 import com.stayspotter.model.UserLoginDto
@@ -8,6 +9,7 @@ import com.stayspotter.model.UserRegisterResponseDto
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.FormUrlEncoded
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
@@ -27,4 +29,10 @@ interface ApiService {
         @Body stayRequestDto: StayRequestDto,
         @Header("Authorization") bearerToken: String
     ): Call<List<Stay>>
+
+    @Headers("Content-Type: application/json")
+    @GET("favourite")
+    fun getFavourites(
+        @Header("Authorization") bearerToken: String
+    ): Call<List<FavouriteStay>>
 }

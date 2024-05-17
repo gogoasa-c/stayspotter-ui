@@ -3,9 +3,12 @@ package com.stayspotter.common
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,10 +18,14 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,7 +39,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -42,8 +53,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
+import coil.compose.SubcomposeAsyncImage
 import com.stayspotter.Constant
 import com.stayspotter.R
+import com.stayspotter.model.FavouriteStay
+import com.stayspotter.model.Stay
 import com.stayspotter.ui.theme.NavBarTheme
 
 @Composable
@@ -270,11 +285,12 @@ fun SimpleText(
     modifier: Modifier = Modifier,
     text: String = "text",
     textAlign: TextAlign = TextAlign.Center,
-    fontSize: TextUnit = Constant.STD_FONT_SIZE
+    fontSize: TextUnit = Constant.STD_FONT_SIZE,
+    color: Color = Constant.TEXT_GRAY
 ) {
     Text(
         text = text,
-        color = Constant.TEXT_GRAY,
+        color = color,
         fontSize = fontSize,
         fontFamily = FontFamily(Font(R.font.inter)),
         textAlign = textAlign,
@@ -298,5 +314,201 @@ fun LoadingIndicator(isLoading: Boolean = true) {
                 color = Constant.EDGE_BLUE
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun StayCard(
+    stay: Stay = Stay(
+        "Magnificent Hotel",
+        "Booking",
+        "https://cf.bstatic.com/xdata/images/hotel/max1024x768/519461821.jpg?k=0e907fea49d593678f35f965ccffc4b220e0f709848c14347ba8f7d9800b698d&o=&hp=1",
+        "$100",
+        23.54,
+        12.34
+    )
+) {
+
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Card(
+            modifier = Modifier
+                .clip(RoundedCornerShape(Constant.CORNER_RADIUS))
+                .fillMaxWidth(0.95f)
+                .height(Constant.PICTURE_HEIGHT)
+                .padding(Constant.STD_PADDING)
+                .align(Alignment.Center),
+            colors = CardDefaults.cardColors(containerColor = Constant.DARK_GRAY)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                val uriHandler = LocalUriHandler.current
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable { uriHandler.openUri(stay.link) },
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    SubcomposeAsyncImage(
+                        modifier = Modifier.fillMaxWidth(),
+                        model = stay.photo,
+                        contentDescription = "Picture of a stay",
+                        contentScale = ContentScale.Crop,
+                        loading = {
+                            CircularProgressIndicator(
+                                trackColor = Constant.LIGHT_EDGE_BLUE,
+                                color = Constant.EDGE_BLUE,
+                                modifier = Modifier.scale(0.1f),
+                                strokeWidth = 15.dp
+                            )
+                        }
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Constant.BACKGROUND_COLOR.copy(alpha = 0.2f))
+                ) {
+                    SimpleText(
+                        text = stay.name,
+                        modifier = Modifier.padding(
+                            start = Constant.STD_PADDING,
+                            top = Constant.STD_PADDING
+                        ),
+                        fontSize = Constant.STD_TITLE_FONT_SIZE
+                    )
+                }
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Bottom,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    SimpleText(
+                        text = "${stay.price}",
+                        modifier = Modifier.padding(Constant.STD_PADDING)
+                    )
+                }
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Bottom,
+                    horizontalAlignment = Alignment.End
+                ) {
+                    androidx.compose.material.Icon(
+                        Icons.Outlined.FavoriteBorder, contentDescription = "Calendar",
+                        tint = Constant.TEXT_GRAY,
+                        modifier = Modifier.padding(Constant.STD_PADDING)
+                            .size(Constant.STD_SQUARE_ICON_LENGTH)
+                    )
+                }
+            }
+        }
+
+    }
+}
+
+@Composable
+@Preview
+fun FavouritedStayCard(
+    stay: FavouriteStay = FavouriteStay(
+        "Alex Apartment Sibiu",
+        "Sibiu",
+        "https://www.booking.com/hotel/ro/alex-apartment-sibiu-sibiu.en-gb.html?aid=304142&label=gen173nr-1FCAQoggJCDHNlYXJjaF9zaWJpdUgzWARowAGIAQGYAQm4ARfIAQ_YAQHoAQH4AQOIAgGoAgO4AqLPmbIGwAIB0gIkNmU4NGUxMDktNDRlZC00NzVlLTgzMTItOWYxNzIwMDkzMzE52AIF4AIB&ucfs=1&arphpl=1&checkin=2024-07-20&checkout=2024-07-23&group_adults=2&req_adults=2&no_rooms=1&group_children=0&req_children=0&hpos=1&hapos=1&sr_order=popularity&nflt=price%3DUSD-40-60-1&srpvid=edf78d910f7b0166&srepoch=1715890084&all_sr_blocks=1194052401_391707672_2_0_0&highlighted_blocks=1194052401_391707672_2_0_0&matching_block_id=1194052401_391707672_2_0_0&sr_pri_blocks=1194052401_391707672_2_0_0__61300&from=searchresults",
+        "https://cf.bstatic.com/xdata/images/hotel/max1024x768/549329193.jpg?k=028cf9826fa1f909f748706791d42fe5f98232a98eac09e579d6d75c9ae1fa18&o=&hp=1",
+        "613",
+        45.87,
+        24.14,
+        2,
+        2,
+        "2024-07-20",
+        "2024-07-23"
+    )
+) {
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Card(
+            modifier = Modifier
+                .clip(RoundedCornerShape(Constant.CORNER_RADIUS))
+                .fillMaxWidth(0.95f)
+                .height(Constant.PICTURE_HEIGHT)
+                .padding(Constant.STD_PADDING)
+                .align(Alignment.Center),
+            colors = CardDefaults.cardColors(containerColor = Constant.DARK_GRAY)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                val uriHandler = LocalUriHandler.current
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable { uriHandler.openUri(stay.link) },
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    SubcomposeAsyncImage(
+                        modifier = Modifier.fillMaxWidth(),
+                        model = stay.photo,
+                        contentDescription = "Picture of a stay",
+                        contentScale = ContentScale.Crop,
+                        loading = {
+                            CircularProgressIndicator(
+                                trackColor = Constant.LIGHT_EDGE_BLUE,
+                                color = Constant.EDGE_BLUE,
+                                modifier = Modifier.scale(0.1f),
+                                strokeWidth = 15.dp
+                            )
+                        }
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Constant.BACKGROUND_COLOR.copy(alpha = 0.2f))
+                ) {
+                    SimpleText(
+                        text = stay.name,
+                        modifier = Modifier.padding(
+                            start = Constant.STD_PADDING,
+                            top = Constant.STD_PADDING
+                        ),
+                        fontSize = Constant.STD_TITLE_FONT_SIZE
+                    )
+                    SimpleText(
+                        text = "${stay.city}: ${stay.checkIn} — ${stay.checkOut}",
+                        modifier = Modifier.padding(
+                            start = Constant.STD_PADDING,
+                            top = Constant.STD_PADDING
+                        ),
+                        fontSize = Constant.STD_SMALL_FONT_SIZE
+                    )
+                    SimpleText(
+                        text = "${stay.adults} adults",
+                        modifier = Modifier.padding(
+                            start = Constant.STD_PADDING,
+                            top = Constant.STD_PADDING
+                        ),
+                        fontSize = Constant.STD_SMALL_FONT_SIZE
+                    )
+                }
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Bottom,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    SimpleText(
+                        text = "$${stay.price}",
+                        modifier = Modifier.padding(Constant.STD_PADDING)
+                    )
+                }
+            }
+        }
+
     }
 }

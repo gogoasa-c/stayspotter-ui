@@ -48,6 +48,7 @@ import com.stayspotter.Constant
 import com.stayspotter.common.FormField
 import com.stayspotter.common.Navbar
 import com.stayspotter.common.SimpleText
+import com.stayspotter.common.StayCard
 import com.stayspotter.common.api.ApiClient
 import com.stayspotter.model.Stay
 import com.stayspotter.model.StayRequestDto
@@ -159,93 +160,4 @@ private fun TopBar(searchedFor: String = "Milano") {
             FormField(length = Constant.SMALL_SEARCHBAR_LENGTH, field = searchedFor, setField = {})
         }
     }
-}
-
-@Preview
-@Composable
-private fun StayCard(
-    stay: Stay = Stay(
-        "Magnificent Hotel",
-        "Booking",
-        "https://cf.bstatic.com/xdata/images/hotel/max1024x768/519461821.jpg?k=0e907fea49d593678f35f965ccffc4b220e0f709848c14347ba8f7d9800b698d&o=&hp=1",
-        "$100",
-        23.54,
-        12.34
-    )
-) {
-
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Card(
-            modifier = Modifier
-                .clip(RoundedCornerShape(Constant.CORNER_RADIUS))
-                .fillMaxWidth(0.95f)
-                .height(Constant.PICTURE_HEIGHT)
-                .padding(Constant.STD_PADDING)
-                .align(Alignment.Center),
-            colors = CardDefaults.cardColors(containerColor = Constant.DARK_GRAY)
-        ) {
-            Box(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                val uriHandler = LocalUriHandler.current
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clickable { uriHandler.openUri(stay.link) },
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    SubcomposeAsyncImage(
-                        modifier = Modifier.fillMaxWidth(),
-                        model = stay.photo,
-                        contentDescription = "Picture of a stay",
-                        contentScale = ContentScale.Crop,
-                        loading = {
-                            CircularProgressIndicator(
-                                trackColor = Constant.LIGHT_EDGE_BLUE,
-                                color = Constant.EDGE_BLUE,
-                                modifier = Modifier.scale(0.1f),
-                                strokeWidth = 15.dp
-                            )
-                        }
-                    )
-                }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Constant.BACKGROUND_COLOR.copy(alpha = 0.2f))
-                ) {
-                    SimpleText(
-                        text = stay.name,
-                        modifier = Modifier.padding(
-                            start = Constant.STD_PADDING,
-                            top = Constant.STD_PADDING
-                        ),
-                        fontSize = Constant.STD_TITLE_FONT_SIZE
-                    )
-//                    SimpleText(
-//                        text = "Found on ${stay.foundOn}",
-//                        modifier = Modifier.padding(start = Constant.STD_PADDING),
-//                        fontSize = Constant.STD_FONT_SIZE
-//                    )
-                }
-
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Bottom,
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    SimpleText(
-                        text = "${stay.price} / Night",
-                        modifier = Modifier.padding(Constant.STD_PADDING)
-                    )
-                }
-            }
-        }
-
-    }
-
 }
