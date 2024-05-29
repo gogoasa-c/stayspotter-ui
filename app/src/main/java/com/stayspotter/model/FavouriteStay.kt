@@ -4,7 +4,7 @@ data class FavouriteStay(
     var name: String,
     var city: String,
     var link: String,
-    var photo: String,
+    var photoUrl: String,
     var price: String,
     var x: Double,
     var y: Double,

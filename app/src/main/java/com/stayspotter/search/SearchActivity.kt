@@ -420,14 +420,12 @@ private fun OverlayButton(context: Context, viewModel: SearchActivityViewModel, 
 private fun findStays(context: Context, viewModel: SearchActivityViewModel, destination: String): Unit {
     val stayRequest = StayRequestDto()
 
-//    stayRequest.city = viewModel.destination.value
+
     stayRequest.city = destination
     stayRequest.adults = viewModel.numberOfPeople.value.toIntOrNull() ?: 2
     stayRequest.priceRangeStart = viewModel.minPrice.value.toIntOrNull() ?: 0
     stayRequest.priceRangeEnd = viewModel.maxPrice.value.toIntOrNull() ?: 1000
 
-    // todo: why are these fields not set???? please
-    // apparently it works if you set it last? lol
     stayRequest.checkIn = viewModel.selectedStartDate.value
     stayRequest.checkOut = viewModel.selectedEndDate.value
 
