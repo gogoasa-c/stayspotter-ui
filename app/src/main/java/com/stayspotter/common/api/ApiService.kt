@@ -31,7 +31,7 @@ interface ApiService {
     ): Call<List<Stay>>
 
     @Headers("Content-Type: application/json")
-    @GET("favourite")
+    @GET("stay/favourite")
     fun getFavourites(
         @Header("Authorization") bearerToken: String
     ): Call<List<FavouriteStay>>

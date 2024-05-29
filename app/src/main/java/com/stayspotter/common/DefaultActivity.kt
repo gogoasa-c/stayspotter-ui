@@ -14,7 +14,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import com.stayspotter.Constant
+import com.stayspotter.model.FavouriteStay
 import com.stayspotter.search.EmbeddedSearch
+import com.stayspotter.stays.FavouriteStaysEmbedded
 import com.stayspotter.user.EmbeddedProfile
 import java.nio.file.AccessDeniedException
 
@@ -34,7 +36,7 @@ private fun CommonActivity(intent: Intent = Intent()) {
     val (selected, setSelected) = remember { mutableIntStateOf(Constant.NAVBAR_ITEM_SEARCH) }
 //    val (jsonWebToken, setJsonWebToken) = remember { mutableStateOf("") }
     val jsonWebToken = remember { mutableStateOf("")}
-
+    val (stays, setStays) = remember { mutableStateOf(listOf<FavouriteStay>()) }
 //    setJsonWebToken(intent.getStringExtra(Constant.INTENT_KEY_JWT)
 //        ?: throw AccessDeniedException("No JWT provided"))
     jsonWebToken.value = intent.getStringExtra(Constant.INTENT_KEY_JWT)
@@ -42,7 +44,7 @@ private fun CommonActivity(intent: Intent = Intent()) {
 
     when (selected) {
         Constant.NAVBAR_ITEM_FAV -> {
-
+            FavouriteStaysEmbedded(jwt = jsonWebToken.value, setStays = setStays, stays = stays)
         }
 
         Constant.NAVBAR_ITEM_SEARCH -> {

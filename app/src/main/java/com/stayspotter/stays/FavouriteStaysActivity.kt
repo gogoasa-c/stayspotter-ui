@@ -40,15 +40,22 @@ class FavouriteStaysActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
+        var stays = listOf<FavouriteStay>()
+
         setContent {
-            FavouriteStaysEmbedded()
+            FavouriteStaysEmbedded(
+                setStays = {
+                    stays = it
+                }
+            )
         }
     }
 }
 
 @Preview
 @Composable
-private fun FavouriteStaysEmbedded(
+fun FavouriteStaysEmbedded(
     isFirstOpening: MutableState<Boolean> = mutableStateOf(true), jwt: String = "jwt",
     setStays: (List<FavouriteStay>) -> Unit = {}, stays: List<FavouriteStay> = listOf(
         FavouriteStay(
@@ -96,10 +103,11 @@ private fun FavouriteStaysEmbedded(
 
     val context = LocalContext.current
 
-    if (isFirstOpening.value) {
-        loadStays(setStays, jwt, context)
-        isFirstOpening.value = false
-    }
+//    if (isFirstOpening.value) {
+//        loadStays(setStays, jwt, context)
+//        isFirstOpening.value = false
+//    }
+    loadStays(setStays, jwt, context)
 
     Column(
         modifier = Modifier
