@@ -67,6 +67,7 @@ import com.stayspotter.model.Stay
 import com.stayspotter.model.StayRequestDto
 import com.stayspotter.ui.theme.NavBarTheme
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
 
 @Composable
@@ -383,6 +384,28 @@ fun StayCard(
         })
     }
 
+    fun increaseCheckedOutStays(jwt: String, context: Context) {
+        val call = ApiClient.apiService.increaseCheckedOutStays("Bearer $jwt")
+
+        call.enqueue(object : Callback<Unit> {
+            override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                if (response.isSuccessful) {
+                    return
+                }
+
+                Log.e("FavouriteStaysActivity", "Error while increasing checked out stays...")
+            }
+
+            override fun onFailure(call: Call<Unit>, t: Throwable) {
+                Toast.makeText(
+                    context, "Error while increasing checked out stays...",
+                    Toast.LENGTH_SHORT
+                ).show()
+                Log.e("FavouriteStaysActivity", "Error while increasing checked out stays...", t)
+            }
+        })
+    }
+
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -402,7 +425,10 @@ fun StayCard(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clickable { uriHandler.openUri(stay.link) },
+                        .clickable {
+                            uriHandler.openUri(stay.link)
+                            increaseCheckedOutStays(jwt, context)
+                                   },
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
