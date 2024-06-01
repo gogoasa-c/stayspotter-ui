@@ -42,4 +42,10 @@ interface ApiService {
         @Body favouriteStay: FavouriteStay,
         @Header("Authorization") bearerToken: String
     ): Call<Unit>
+
+    @Headers("Content-Type: application/json")
+    @GET("stats")
+    fun increaseCheckedOutStays(
+        @Header("Authorization") bearerToken: String
+    ): Call<Unit>
 }
