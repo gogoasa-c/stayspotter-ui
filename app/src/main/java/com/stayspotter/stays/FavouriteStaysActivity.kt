@@ -20,18 +20,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.stayspotter.Constant
 import com.stayspotter.common.FavouritedStayCard
+import com.stayspotter.common.LoadingIndicator
 import com.stayspotter.common.SimpleText
-import com.stayspotter.common.StayCard
 import com.stayspotter.common.api.ApiClient
 import com.stayspotter.model.FavouriteStay
-import com.stayspotter.model.Stay
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -100,14 +98,11 @@ fun FavouriteStaysEmbedded(
     )
 ) {
     val scrollState = rememberScrollState()
-
+    val (isLoading, setIsLoading) = remember { mutableStateOf(true)}
     val context = LocalContext.current
 
-//    if (isFirstOpening.value) {
-//        loadStays(setStays, jwt, context)
-//        isFirstOpening.value = false
-//    }
-    loadStays(setStays, jwt, context)
+
+    loadStays(setStays, jwt, context, setIsLoading)
 
     Column(
         modifier = Modifier
@@ -125,9 +120,16 @@ fun FavouriteStaysEmbedded(
         }
         Spacer(modifier = Modifier.height(Constant.PADDING_STAYS))
     }
+
+    LoadingIndicator(isLoading)
 }
 
-fun loadStays(setStayList: (List<FavouriteStay>) -> Unit, jwt: String, context: Context) {
+fun loadStays(
+    setStayList: (List<FavouriteStay>) -> Unit,
+    jwt: String,
+    context: Context,
+    setIsLoading: (Boolean) -> Unit
+) {
     val call = ApiClient.apiService.getFavourites("Bearer $jwt")
 
     call.enqueue(object : Callback<List<FavouriteStay>> {
@@ -137,10 +139,11 @@ fun loadStays(setStayList: (List<FavouriteStay>) -> Unit, jwt: String, context: 
         ) {
             if (response.isSuccessful) {
                 setStayList(response.body() ?: emptyList())
-
+                setIsLoading(false)
                 return
             }
 
+            setIsLoading(false)
             Toast.makeText(
                 context, "Error while fetching favourite stays...",
                 Toast.LENGTH_SHORT
@@ -148,11 +151,11 @@ fun loadStays(setStayList: (List<FavouriteStay>) -> Unit, jwt: String, context: 
         }
 
         override fun onFailure(call: Call<List<FavouriteStay>>, t: Throwable) {
+            setIsLoading(false)
             Toast.makeText(
                 context, "Error while fetching favourite stays...",
                 Toast.LENGTH_SHORT
             ).show()
-
             Log.e("FavouriteStaysActivity", "Error while fetching favourite stays...", t)
         }
     })

@@ -36,7 +36,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +64,7 @@ import com.stayspotter.common.FormField
 import com.stayspotter.common.GenericSquircleButton
 import com.stayspotter.common.GenericButton
 import com.stayspotter.common.IconField
+import com.stayspotter.common.LoadingIndicator
 import com.stayspotter.common.api.ApiClient
 import com.stayspotter.helper.convertEpochToDate
 import com.stayspotter.model.Stay
@@ -98,6 +98,7 @@ private fun ButtonSpacer() {
 @Composable
 fun EmbeddedSearch(jwt: String = "jwt") {
     val viewModel = remember { SearchActivityViewModel() }
+    val (isLoading, setIsLoading) = remember { mutableStateOf(false) }
     viewModel.jsonWebToken.value = jwt
 
     val (destination, setDestination) = remember { mutableStateOf("") }
@@ -134,7 +135,8 @@ fun EmbeddedSearch(jwt: String = "jwt") {
 
         FilterChips(filters)
     }
-    OverlayButton(context, viewModel, destination)
+    OverlayButton(context, viewModel, destination, setIsLoading)
+    LoadingIndicator(isLoading)
 }
 
 @Composable
@@ -399,7 +401,12 @@ private fun SearchBar(destination: String, setDestination: (String) -> Unit) {
 }
 
 @Composable
-private fun OverlayButton(context: Context, viewModel: SearchActivityViewModel, destination: String) {
+private fun OverlayButton(
+    context: Context,
+    viewModel: SearchActivityViewModel,
+    destination: String,
+    setIsLoading: (Boolean) -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -412,12 +419,18 @@ private fun OverlayButton(context: Context, viewModel: SearchActivityViewModel, 
             color = Constant.PETRIFIED_BLUE,
             text = "Spot your stay!",
         ) {
-            findStays(context, viewModel, destination)
+            setIsLoading(true)
+            findStays(context, viewModel, destination, setIsLoading)
         }
     }
 }
 
-private fun findStays(context: Context, viewModel: SearchActivityViewModel, destination: String): Unit {
+private fun findStays(
+    context: Context,
+    viewModel: SearchActivityViewModel,
+    destination: String,
+    setIsLoading: (Boolean) -> Unit
+): Unit {
     val stayRequest = StayRequestDto()
 
 
@@ -443,11 +456,12 @@ private fun findStays(context: Context, viewModel: SearchActivityViewModel, dest
                 val stayList = response.body()!!
 
                 intent.putExtra(Constant.INTENT_KEY_STAYS, stayList.toTypedArray())
-
+                setIsLoading(false)
                 context.startActivity(intent)
                 return
             }
 
+            setIsLoading(false)
             Toast.makeText(
                 context, "Error while calling scraper...",
                 Toast.LENGTH_SHORT
@@ -455,6 +469,7 @@ private fun findStays(context: Context, viewModel: SearchActivityViewModel, dest
         }
 
         override fun onFailure(call: Call<List<Stay>>, t: Throwable) {
+            setIsLoading(false)
             Toast.makeText(
                 context, "Error while calling scraper...",
                 Toast.LENGTH_SHORT

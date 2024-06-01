@@ -561,7 +561,7 @@ fun FavouritedStayCard(
                     horizontalAlignment = Alignment.Start
                 ) {
                     SimpleText(
-                        text = "$${stay.price}",
+                        text = stay.price,
                         modifier = Modifier.padding(Constant.STD_PADDING)
                     )
                 }
