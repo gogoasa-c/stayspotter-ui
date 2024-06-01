@@ -1,5 +1,8 @@
 package com.stayspotter.helper
 
+import com.stayspotter.model.FavouriteStay
+import com.stayspotter.model.Stay
+import com.stayspotter.model.StayRequestDto
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -7,11 +10,35 @@ import java.time.format.DateTimeFormatter
 /**
  * Converts epoch time to a human-readable date format.
  * @param epochTimeMillis the epoch time in milliseconds
- * @return a string representing the date in the format "dd-MM-yyyy"
+ * @return a string representing the date in the format "yyyy-MM-dd"
  */
 fun convertEpochToDate(epochTimeMillis: Long): String {
     return Instant.ofEpochMilli(epochTimeMillis)
         .atZone(ZoneId.systemDefault())
         .toLocalDateTime()
         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+}
+
+/**
+ * Converts a [Stay] object to a [FavouriteStay] object.
+ * @param stay the stay object to convert
+ * @param stayRequestDto the stay request DTO object
+ * @return a [FavouriteStay] object
+ */
+fun convertStayToFavouriteStay(
+    stay: Stay, stayRequestDto: StayRequestDto
+): FavouriteStay {
+    return FavouriteStay(
+        stay.name,
+        stayRequestDto.city,
+        stay.link,
+        stay.photoUrl,
+        stay.price.split("lei")[0].trim().replace(Regex("[^\\d]"), ""),
+        stay.x,
+        stay.y,
+        stayRequestDto.adults,
+        stayRequestDto.rooms,
+        stayRequestDto.checkIn,
+        stayRequestDto.checkOut
+    )
 }

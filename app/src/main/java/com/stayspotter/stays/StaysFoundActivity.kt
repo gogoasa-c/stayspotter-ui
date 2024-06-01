@@ -63,11 +63,17 @@ class StaysFoundActivity : AppCompatActivity() {
             Constant.INTENT_KEY_STAYS,
             Stay::class.java
         )
+        val request = intent.getSerializableExtra(
+            Constant.INTENT_KEY_STAY_SEARCH_REQUEST,
+            StayRequestDto::class.java
+        )
         val stayList = stayArray?.toList()
         setContent {
             StaysFound(
                 stayList ?: listOf(),
-                intent.getStringExtra(Constant.INTENT_KEY_CITY) ?: ""
+                intent.getStringExtra(Constant.INTENT_KEY_CITY) ?: "",
+                request ?: throw IllegalArgumentException("No stay request provided"),
+                intent.getStringExtra(Constant.INTENT_KEY_JWT) ?: ""
             )
         }
     }
@@ -111,7 +117,9 @@ private fun StaysFound(
             12.34
         ),
     ),
-    searchedFor: String = "Milano"
+    searchedFor: String = "Milano",
+    stayRequestDto: StayRequestDto = StayRequestDto(),
+    jwt: String = "jwt"
 ) {
     val scrollState = rememberScrollState()
 
@@ -129,7 +137,7 @@ private fun StaysFound(
 
         stayList.forEach { stay ->
             Divider(color = Constant.TEXT_GRAY)
-            StayCard(stay)
+            StayCard(stay, stayRequestDto, jwt)
         }
         Spacer(modifier = Modifier.height(Constant.PADDING_STAYS))
     }

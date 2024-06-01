@@ -434,6 +434,8 @@ private fun findStays(context: Context, viewModel: SearchActivityViewModel, dest
     }
     val intent = Intent(context, StaysFoundActivity::class.java)
     intent.putExtra(Constant.INTENT_KEY_CITY, destination)
+    intent.putExtra(Constant.INTENT_KEY_STAY_SEARCH_REQUEST, stayRequest)
+    intent.putExtra(Constant.INTENT_KEY_JWT, viewModel.jsonWebToken.value)
 
     call.enqueue(object : retrofit2.Callback<List<Stay>> {
         override fun onResponse(call: Call<List<Stay>>, response: Response<List<Stay>>) {

@@ -1,5 +1,8 @@
 package com.stayspotter.common
 
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +22,7 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Person
@@ -33,12 +37,15 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -53,9 +60,14 @@ import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.stayspotter.Constant
 import com.stayspotter.R
+import com.stayspotter.common.api.ApiClient
+import com.stayspotter.helper.convertStayToFavouriteStay
 import com.stayspotter.model.FavouriteStay
 import com.stayspotter.model.Stay
+import com.stayspotter.model.StayRequestDto
 import com.stayspotter.ui.theme.NavBarTheme
+import retrofit2.Call
+import retrofit2.Response
 
 @Composable
 fun GenericFormButton(text: String, color: Color, onClick: () -> Unit = {}) {
@@ -323,8 +335,53 @@ fun StayCard(
         "$100",
         23.54,
         12.34
-    )
+    ),
+    stayRequestDto: StayRequestDto = StayRequestDto(),
+    jwt: String = "jwt",
+    context: Context = LocalContext.current
 ) {
+    val isFavorite = remember { mutableStateOf(false) }
+
+    fun saveToFavourites(
+        stay: Stay, stayRequestDto: StayRequestDto,
+        jwt: String, context: Context
+    ): Unit {
+        val favouriteStay = convertStayToFavouriteStay(stay, stayRequestDto)
+
+        val call = ApiClient.apiService.saveToFavourite(
+            favouriteStay,
+            "Bearer $jwt"
+        )
+
+        call.enqueue(object : retrofit2.Callback<Unit> {
+            override fun onResponse(
+                call: Call<Unit>,
+                response: Response<Unit>
+            ) {
+                if (response.isSuccessful) {
+                    Toast.makeText(
+                        context, "Stay saved to favourites!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    isFavorite.value = !isFavorite.value
+
+
+                    return
+                }
+
+                Log.e("FavouriteStaysActivity", "Error while saving favourite stay...")
+            }
+
+            override fun onFailure(call: Call<Unit>, t: Throwable) {
+                Toast.makeText(
+                    context, "Error while saving favourite stay...",
+                    Toast.LENGTH_SHORT
+                ).show()
+                Log.e("FavouriteStaysActivity", "Error while saving favourite stay...", t)
+            }
+        })
+    }
 
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -395,15 +452,20 @@ fun StayCard(
                     horizontalAlignment = Alignment.End
                 ) {
                     androidx.compose.material.Icon(
-                        Icons.Outlined.FavoriteBorder, contentDescription = "Calendar",
+                        imageVector = if(!isFavorite.value) Icons.Outlined.FavoriteBorder
+                                        else Icons.Filled.Favorite,
+                        contentDescription = "Favourite",
                         tint = Constant.TEXT_GRAY,
-                        modifier = Modifier.padding(Constant.STD_PADDING)
+                        modifier = Modifier
+                            .padding(Constant.STD_PADDING)
                             .size(Constant.STD_SQUARE_ICON_LENGTH)
+                            .clickable(onClick = {
+                                saveToFavourites(stay, stayRequestDto, jwt, context)
+                            })
                     )
                 }
             }
         }
-
     }
 }
 
