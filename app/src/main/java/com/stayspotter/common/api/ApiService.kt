@@ -35,4 +35,11 @@ interface ApiService {
     fun getFavourites(
         @Header("Authorization") bearerToken: String
     ): Call<List<FavouriteStay>>
+
+    @Headers("Content-Type: application/json")
+    @POST("stay/favourite")
+    fun saveToFavourite(
+        @Body favouriteStay: FavouriteStay,
+        @Header("Authorization") bearerToken: String
+    ): Call<Unit>
 }

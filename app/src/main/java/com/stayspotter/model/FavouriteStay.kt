@@ -11,5 +11,5 @@ data class FavouriteStay(
     var adults: Int,
     var rooms: Int,
     var checkIn: String,
-    var checkOut: String
+    var checkOut: String,
 )
