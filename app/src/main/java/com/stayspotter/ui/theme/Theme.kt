@@ -13,8 +13,9 @@ private val MainColorTheme = darkColorScheme(
     onSecondary = Constant.TEXT_GRAY,
     onTertiary = Constant.TEXT_GRAY,
     background = Constant.BACKGROUND_COLOR,
-    surfaceTint = Constant.EDGE_BLUE,
-    surface = Constant.EDGE_BLUE,
+    surfaceTint = Constant.PETRIFIED_BLUE,
+    surface = Constant.TRANSPARENT,
+    onPrimaryContainer = Constant.TRANSPARENT,
 )
 
 private val NavigationTheme = darkColorScheme(

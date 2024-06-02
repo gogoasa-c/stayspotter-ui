@@ -64,6 +64,7 @@ import com.stayspotter.common.FormField
 import com.stayspotter.common.GenericSquircleButton
 import com.stayspotter.common.GenericButton
 import com.stayspotter.common.IconField
+import com.stayspotter.common.IconFieldV2
 import com.stayspotter.common.LoadingIndicator
 import com.stayspotter.common.api.ApiClient
 import com.stayspotter.helper.convertEpochToDate
@@ -128,7 +129,8 @@ fun EmbeddedSearch(jwt: String = "jwt") {
 
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING * 4))
 
-        SearchBar(destination, setDestination)
+//        SearchBar(destination, setDestination)
+        SearchBar2(destination, setDestination)
         Filters(filters, viewModel)
 
         Spacer(modifier = Modifier.size(Constant.STD_PADDING))
@@ -390,8 +392,9 @@ private fun CalendarDialog(
     }
 }
 
+@Preview
 @Composable
-private fun SearchBar(destination: String, setDestination: (String) -> Unit) {
+private fun SearchBar(destination: String = "Milano", setDestination: (String) -> Unit = {}) {
     IconField(
         placeholder = "Your destination...",
         field = destination, setField = setDestination
@@ -399,6 +402,18 @@ private fun SearchBar(destination: String, setDestination: (String) -> Unit) {
         Icon(Icons.Default.Search, contentDescription = "Search", tint = Constant.TEXT_GRAY)
     }
 }
+
+@Composable
+private fun SearchBar2(destination: String = "Milano", setDestination: (String) -> Unit = {}) {
+    IconFieldV2(
+        placeholder = "Your destination...",
+        field = destination, setField = setDestination,
+        suggestions = listOf("Milano", "Roma", "Napoli", "Torino")
+    ) {
+        Icon(Icons.Default.Search, contentDescription = "Search", tint = Constant.TEXT_GRAY)
+    }
+}
+
 
 @Composable
 private fun OverlayButton(

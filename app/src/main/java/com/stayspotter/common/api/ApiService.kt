@@ -6,6 +6,7 @@ import com.stayspotter.model.StayRequestDto
 import com.stayspotter.model.UserLoginDto
 import com.stayspotter.model.UserRegisterDto
 import com.stayspotter.model.UserRegisterResponseDto
+import com.stayspotter.model.UserStatsDto
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.FormUrlEncoded
@@ -48,4 +49,10 @@ interface ApiService {
     fun increaseCheckedOutStays(
         @Header("Authorization") bearerToken: String
     ): Call<Unit>
+
+    @Headers("Content-Type: application/json")
+    @GET("stats/user")
+    fun getUserStats(
+        @Header("Authorization") bearerToken: String
+    ): Call<UserStatsDto>
 }
