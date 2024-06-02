@@ -29,16 +29,21 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.InputChipDefaults
+import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -66,6 +72,7 @@ import com.stayspotter.model.FavouriteStay
 import com.stayspotter.model.Stay
 import com.stayspotter.model.StayRequestDto
 import com.stayspotter.ui.theme.NavBarTheme
+import com.stayspotter.ui.theme.StaySpotterTheme
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -193,6 +200,69 @@ fun IconField(
         leadingIcon = icon,
         textStyle = TextStyle.Default.copy(fontSize = Constant.STD_FONT_SIZE)
     )
+}
+
+@Preview
+@Composable
+fun IconFieldV2(
+    placeholder: String = "Placeholder...", field: String = "Milano", setField: (String) -> Unit = {},
+    suggestions: List<String> = listOf("suggestion1", "suggestion2", "suggestion3"),
+    icon: @Composable () -> Unit = { Icon(Icons.Filled.Search, contentDescription = "Search") }
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var filteredSuggestions by remember { mutableStateOf(suggestions) }
+
+    Column {
+        TextField(
+            modifier = Modifier
+                .size(Constant.STD_LENGTH, Constant.STD_HEIGHT),
+            value = field,
+            onValueChange = {
+                setField(it)
+                expanded = true
+                filteredSuggestions = suggestions.filter { suggestion ->
+                    suggestion.contains(it, ignoreCase = true)
+                }
+            },
+            shape = RoundedCornerShape(Constant.CORNER_RADIUS),
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                backgroundColor = Constant.PETRIFIED_BLUE,
+                textColor = Constant.TEXT_GRAY
+            ),
+            placeholder = {
+                Text(text = placeholder, color = Constant.FADED_GRAY, fontSize = Constant.STD_FONT_SIZE)
+            },
+            leadingIcon = icon,
+            textStyle = TextStyle.Default.copy(fontSize = Constant.STD_FONT_SIZE)
+        )
+
+        StaySpotterTheme {
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier
+                    .size(Constant.STD_LENGTH, Constant.STD_HEIGHT * filteredSuggestions.size)
+                    .background(
+                        Constant.PETRIFIED_BLUE,
+                        shape = RoundedCornerShape(Constant.CORNER_RADIUS)
+                    ),
+
+                ) {
+                filteredSuggestions.forEach { suggestion ->
+                    DropdownMenuItem(onClick = {
+                        setField(suggestion)
+                        expanded = false
+                    }, text = {
+                        SimpleText(text = suggestion)
+                    }, modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.Transparent))
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -428,7 +498,7 @@ fun StayCard(
                         .clickable {
                             uriHandler.openUri(stay.link)
                             increaseCheckedOutStays(jwt, context)
-                                   },
+                        },
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {

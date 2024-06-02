@@ -6,13 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.ViewModel
 import com.stayspotter.Constant
 import com.stayspotter.model.FavouriteStay
 import com.stayspotter.search.EmbeddedSearch
@@ -52,7 +49,7 @@ private fun CommonActivity(intent: Intent = Intent()) {
         }
 
         Constant.NAVBAR_ITEM_PROFILE -> {
-            EmbeddedProfile()
+            EmbeddedProfile(jsonWebToken.value)
         }
     }
 

@@ -1,6 +1,9 @@
 package com.stayspotter.user
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -20,9 +23,12 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
@@ -34,7 +40,13 @@ import androidx.compose.ui.unit.dp
 import com.stayspotter.Constant
 import com.stayspotter.R
 import com.stayspotter.common.GenericButton
+import com.stayspotter.common.LoadingIndicator
 import com.stayspotter.common.Navbar
+import com.stayspotter.common.api.ApiClient
+import com.stayspotter.model.UserStatsDto
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class UserProfileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,8 +93,11 @@ private fun UserProfile() {
 
 @Preview
 @Composable
-fun EmbeddedProfile() {
-    val username = "john_doe_2054"
+fun EmbeddedProfile(jwt: String = "jwt") {
+    val (isLoading, setIsLoading) = remember { mutableStateOf(true) }
+    val (userStats, setUserStats) = remember { mutableStateOf(UserStatsDto("User", 0, 0.0)) }
+
+    getUserStats(jwt, LocalContext.current, setIsLoading, setUserStats)
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -96,18 +111,58 @@ fun EmbeddedProfile() {
             UserIcon()
             Spacer(modifier = Modifier.size(10.dp))
             Text(
-                text = username,
+                text = userStats.username,
                 fontFamily = FontFamily(Font(R.font.inter_semibold)),
                 fontSize = Constant.STD_TITLE_FONT_SIZE,
                 textAlign = TextAlign.Center,
                 color = Constant.TEXT_GRAY
             )
             Spacer(modifier = Modifier.size(10.dp))
-            UserStats()
+            UserStats(userStats.numberOfSearches, userStats.topPercentage)
         }
 
         SettingsButton()
     }
+    LoadingIndicator(isLoading)
+}
+
+private fun getUserStats(
+    jwt: String,
+    context: Context,
+    setIsLoading: (Boolean) -> Unit,
+    setUserStats: (UserStatsDto) -> Unit
+) {
+    val call = ApiClient.apiService.getUserStats("Bearer $jwt")
+
+    call.enqueue(object : Callback<UserStatsDto> {
+        override fun onResponse(
+            call: Call<UserStatsDto>,
+            response: Response<UserStatsDto>
+        ) {
+            if (response.isSuccessful) {
+                setUserStats(response.body()
+                    ?: UserStatsDto("User", 0, 0.0))
+                setIsLoading(false)
+                return
+            }
+
+            setIsLoading(false)
+            Toast.makeText(
+                context, "Error while fetching favourite stays...",
+                Toast.LENGTH_SHORT
+            ).show()
+            Log.e("UserProfileActivity", "Error while fetching favourite stays...")
+        }
+
+        override fun onFailure(call: Call<UserStatsDto>, t: Throwable) {
+            setIsLoading(false)
+            Toast.makeText(
+                context, "Error while fetching favourite stays...",
+                Toast.LENGTH_SHORT
+            ).show()
+            Log.e("UserProfileActivity", "Error while fetching favourite stays...", t)
+        }
+    })
 }
 
 @Preview
@@ -121,11 +176,12 @@ private fun UserIcon() {
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = Icons.Default.Person, contentDescription = "User Icon",
-            modifier = Modifier.scale(2.25f)
+            imageVector = Icons.Default.Person,
+            contentDescription = "User Icon",
+            modifier = Modifier.scale(2.2f),
+            tint = Constant.LIGHT_EDGE_BLUE
         )
     }
-
 }
 
 @Preview
