@@ -22,6 +22,8 @@ import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.LocationCity
+import androidx.compose.material.icons.filled.OutlinedFlag
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.PeopleAlt
 import androidx.compose.material.icons.outlined.RemoveRedEye
@@ -36,13 +38,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -57,6 +62,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.stayspotter.Constant
 import com.stayspotter.R
 import com.stayspotter.common.Chip
@@ -71,8 +78,12 @@ import com.stayspotter.helper.convertEpochToDate
 import com.stayspotter.model.Stay
 import com.stayspotter.model.StayRequestDto
 import com.stayspotter.stays.StaysFoundActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Response
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 class SearchActivity : AppCompatActivity() {
 
@@ -103,6 +114,8 @@ fun EmbeddedSearch(jwt: String = "jwt") {
     viewModel.jsonWebToken.value = jwt
 
     val (destination, setDestination) = remember { mutableStateOf("") }
+    val (country, setCountry) = remember { mutableStateOf("") }
+
     val filters = remember {
         mutableStateMapOf(
             Constant.FILTER_KEY_CITY to "",
@@ -115,7 +128,9 @@ fun EmbeddedSearch(jwt: String = "jwt") {
 
     val context = LocalContext.current
 
-//    val setDestination: (String) -> Unit = { viewModel.destination.value = it }
+    if (viewModel.cities.value.isEmpty()) {
+        LoadCities({ viewModel.countries.value = it }, { viewModel.countriesMap = it })
+    }
 
     Column(
         modifier = Modifier
@@ -130,7 +145,14 @@ fun EmbeddedSearch(jwt: String = "jwt") {
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING * 4))
 
 //        SearchBar(destination, setDestination)
-        SearchBar2(destination, setDestination)
+        SearchBarV2(destination, setDestination, viewModel.cities.value,
+            icon = Icons.Default.LocationCity, placeholder = "City...")
+        Spacer(modifier = Modifier.size(Constant.STD_PADDING))
+        SearchBarV2(country, setCountry, viewModel.countries.value, "Country...",
+            icon = Icons.Default.OutlinedFlag) {
+            viewModel.cities.value = viewModel.countriesMap[country] ?: emptyList()
+        }
+
         Filters(filters, viewModel)
 
         Spacer(modifier = Modifier.size(Constant.STD_PADDING))
@@ -404,16 +426,47 @@ private fun SearchBar(destination: String = "Milano", setDestination: (String) -
 }
 
 @Composable
-private fun SearchBar2(destination: String = "Milano", setDestination: (String) -> Unit = {}) {
+private fun SearchBarV2(
+    destination: String = "Milano",
+    setDestination: (String) -> Unit = {},
+    cityList: List<String> = emptyList(),
+    placeholder: String = "Your destination...",
+    icon: ImageVector = Icons.Default.Search,
+    dropdownMenuItemOnClick: () -> Unit = {}
+) {
     IconFieldV2(
-        placeholder = "Your destination...",
+        placeholder = placeholder,
         field = destination, setField = setDestination,
-        suggestions = listOf("Milano", "Roma", "Napoli", "Torino")
+        suggestions = cityList,
+        dropdownItemOnClick = dropdownMenuItemOnClick
     ) {
-        Icon(Icons.Default.Search, contentDescription = "Search", tint = Constant.TEXT_GRAY)
+        Icon(icon, contentDescription = "Search", tint = Constant.TEXT_GRAY)
     }
 }
 
+@Composable
+private fun LoadCities(setCountries: (List<String>) -> Unit = {},
+                       setCountriesMap: (MutableMap<String, List<String>>) -> Unit = {}) {
+    Log.i("SearchActivity", "Loading cities list...")
+
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch(Dispatchers.IO) {
+            val reader = BufferedReader(InputStreamReader(context
+                .resources.openRawResource(R.raw.new_countries)))
+            val fileContents = reader.use { it.readText() }
+            val countriesType = object : TypeToken<Map<String, List<String>>>() {}.type
+            val countries: Map<String, List<String>> = Gson().fromJson(fileContents, countriesType)
+
+            launch(Dispatchers.Main) {
+                setCountries(countries.keys.toList())
+                setCountriesMap(countries.toMutableMap())
+            }
+        }
+    }
+}
 
 @Composable
 private fun OverlayButton(
@@ -672,7 +725,7 @@ class SearchActivityViewModel : ViewModel() {
     // filters + destination
 //    val destination = mutableStateOf("")
 
-//    val selectedStartDate = mutableLongStateOf(0L)
+    //    val selectedStartDate = mutableLongStateOf(0L)
 //    val selectedEndDate = mutableLongStateOf(0L )
     val selectedStartDate = mutableStateOf("")
     val selectedEndDate = mutableStateOf("")
@@ -684,4 +737,9 @@ class SearchActivityViewModel : ViewModel() {
     val minPrice = mutableStateOf("")
     val maxPrice = mutableStateOf("")
     val showPriceRangeDialog = mutableStateOf(false)
+
+    val cities = mutableStateOf<List<String>>(emptyList())
+    val countries = mutableStateOf<List<String>>(emptyList())
+
+    var countriesMap = mutableMapOf<String, List<String>>()
 }
