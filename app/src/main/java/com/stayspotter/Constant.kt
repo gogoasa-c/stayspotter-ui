@@ -33,7 +33,7 @@ class Constant {
         val NAVBAR_HEIGHT: Dp = 75.dp
         val PICTURE_HEIGHT: Dp = 250.dp
         val STD_PADDING: Dp = 10.dp
-        val STD_NOTIFICATION_BAR_PADDING: Dp = 30.dp
+        val STD_NOTIFICATION_BAR_PADDING: Dp = 40.dp
         val STD_BIG_PADDING: Dp = 150.dp
         val PADDING_STAYS: Dp = 75.dp
         val STD_SQUARE_ICON_LENGTH = 30.dp
