@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.stayspotter.Constant
+import com.stayspotter.common.EmptyStayCardList
 import com.stayspotter.common.FormField
 import com.stayspotter.common.StayCard
 import com.stayspotter.model.Stay
@@ -114,6 +115,10 @@ private fun StaysFound(
             StayCard(stay, stayRequestDto, jwt)
         }
         Spacer(modifier = Modifier.height(Constant.PADDING_STAYS))
+    }
+
+    if (stayList.isEmpty()) {
+        EmptyStayCardList()
     }
 }
 

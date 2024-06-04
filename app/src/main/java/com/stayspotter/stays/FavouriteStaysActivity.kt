@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
@@ -25,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.stayspotter.Constant
+import com.stayspotter.common.EmptyStayCardList
 import com.stayspotter.common.FavouritedStayCard
 import com.stayspotter.common.LoadingIndicator
 import com.stayspotter.common.SimpleText
@@ -98,7 +100,7 @@ fun FavouriteStaysEmbedded(
     )
 ) {
     val scrollState = rememberScrollState()
-    val (isLoading, setIsLoading) = remember { mutableStateOf(true)}
+    val (isLoading, setIsLoading) = remember { mutableStateOf(true) }
     val context = LocalContext.current
 
 
@@ -117,11 +119,21 @@ fun FavouriteStaysEmbedded(
         stays.forEach {
             Divider(color = Constant.TEXT_GRAY)
             FavouritedStayCard(it)
+//            Spacer(modifier = Modifier.height(Constant.PADDING_STAYS))
         }
-        Spacer(modifier = Modifier.height(Constant.PADDING_STAYS))
+    }
+
+    if (stays.isEmpty()) {
+        EmptyStayCardList()
     }
 
     LoadingIndicator(isLoading)
+}
+
+@Preview
+@Composable
+private fun FavouriteStaysEmpty() {
+    FavouriteStaysEmbedded(stays = emptyList())
 }
 
 fun loadStays(

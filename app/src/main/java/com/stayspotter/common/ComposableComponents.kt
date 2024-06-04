@@ -8,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SentimentVeryDissatisfied
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Card
@@ -50,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -246,7 +250,11 @@ fun IconFieldV2(
                 textColor = Constant.TEXT_GRAY
             ),
             placeholder = {
-                Text(text = placeholder, color = Constant.FADED_GRAY, fontSize = Constant.STD_FONT_SIZE)
+                Text(
+                    text = placeholder,
+                    color = Constant.FADED_GRAY,
+                    fontSize = Constant.STD_FONT_SIZE
+                )
             },
             leadingIcon = icon,
             textStyle = TextStyle.Default.copy(fontSize = Constant.STD_FONT_SIZE)
@@ -273,7 +281,8 @@ fun IconFieldV2(
                         SimpleText(text = suggestion)
                     }, modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color.Transparent))
+                        .background(Color.Transparent)
+                    )
                 }
             }
         }
@@ -570,8 +579,8 @@ fun StayCard(
                     horizontalAlignment = Alignment.End
                 ) {
                     androidx.compose.material.Icon(
-                        imageVector = if(!isFavorite.value) Icons.Outlined.FavoriteBorder
-                                        else Icons.Filled.Favorite,
+                        imageVector = if (!isFavorite.value) Icons.Outlined.FavoriteBorder
+                        else Icons.Filled.Favorite,
                         contentDescription = "Favourite",
                         tint = Constant.TEXT_GRAY,
                         modifier = Modifier
@@ -583,6 +592,38 @@ fun StayCard(
                     )
                 }
             }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun EmptyStayCardList(text: String = "Oops... Looks like there's nothing here!",
+                      icon: ImageVector = Icons.Default.SentimentVeryDissatisfied) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                icon,
+                contentDescription = "Sad face",
+                tint = Constant.TEXT_GRAY,
+                modifier = Modifier.scale(2f)
+            )
+        }
+        Spacer(modifier = Modifier.height(Constant.STD_PADDING * 2))
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            SimpleText(text = text)
         }
     }
 }
