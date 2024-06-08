@@ -119,8 +119,8 @@ fun FavouriteStaysEmbedded(
         stays.forEach {
             Divider(color = Constant.TEXT_GRAY)
             FavouritedStayCard(it)
-//            Spacer(modifier = Modifier.height(Constant.PADDING_STAYS))
         }
+        Spacer(modifier = Modifier.height(Constant.PADDING_STAYS))
     }
 
     if (stays.isEmpty()) {

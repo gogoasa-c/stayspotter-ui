@@ -15,12 +15,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -42,8 +44,10 @@ import com.stayspotter.R
 import com.stayspotter.common.GenericButton
 import com.stayspotter.common.LoadingIndicator
 import com.stayspotter.common.Navbar
+import com.stayspotter.common.SimpleText
 import com.stayspotter.common.api.ApiClient
 import com.stayspotter.model.UserStatsDto
+import com.stayspotter.ui.theme.StaySpotterTheme
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -87,7 +91,6 @@ private fun UserProfile() {
             Navbar(1)
         }
 
-        SettingsButton()
     }
 }
 
@@ -121,7 +124,15 @@ fun EmbeddedProfile(jwt: String = "jwt") {
             UserStats(userStats.numberOfSearches, userStats.topPercentage)
         }
 
-        SettingsButton()
+        Column(
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = Constant.STD_PADDING * 2)
+        ) {
+            ThemeToggle()
+        }
     }
     LoadingIndicator(isLoading)
 }
@@ -140,8 +151,10 @@ private fun getUserStats(
             response: Response<UserStatsDto>
         ) {
             if (response.isSuccessful) {
-                setUserStats(response.body()
-                    ?: UserStatsDto("User", 0, 0.0))
+                setUserStats(
+                    response.body()
+                        ?: UserStatsDto("User", 0, 0.0)
+                )
                 setIsLoading(false)
                 return
             }
@@ -184,21 +197,33 @@ private fun UserIcon() {
     }
 }
 
-@Preview
 @Composable
-private fun SettingsButton() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+@Preview
+private fun ThemeToggle() {
+    val (isDarkTheme, setIsDarkTheme) = remember { mutableStateOf(false) }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .padding(Constant.STD_PADDING)
+            .background(Constant.BACKGROUND_COLOR)
+            .fillMaxWidth()
     ) {
-        Spacer(modifier = Modifier.size(Constant.OVERLAY_BUTTON_OFFSET))
-        GenericButton(
-            length = Constant.STD_LENGTH,
-            height = Constant.STD_HEIGHT,
-            color = Constant.LIGHT_GRAY,
-            text = "Settings"
-        ) {}
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = Constant.STD_PADDING)
+        ) {
+            StaySpotterTheme {
+                Switch(checked = isDarkTheme, onCheckedChange = { setIsDarkTheme(!isDarkTheme) })
+            }
+        }
+        SimpleText(
+            text = "Dark Mode",
+        )
     }
 }
 

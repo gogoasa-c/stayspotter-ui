@@ -13,8 +13,8 @@ class Constant {
 
     companion object {
         // colours:
-        val BACKGROUND_COLOR: Color = Color(0xFF202020)
-        val DARK_GRAY: Color = Color(0xFF121212)
+        var BACKGROUND_COLOR: Color = Color(0xFF202020)
+        var DARK_GRAY: Color = Color(0xFF121212)
         val PETRIFIED_BLUE: Color = Color(0xFF124966)
         val EDGE_BLUE: Color = Color(0xFF2EB4FC)
         val LIGHT_EDGE_BLUE: Color = Color(0xFFABE1FE)
@@ -22,6 +22,10 @@ class Constant {
         val FADED_GRAY: Color = Color(0xFF8B8B8B)
         val LIGHT_GRAY: Color = Color(0xFF616161)
         val TRANSPARENT: Color = Color.Transparent
+
+        // permanent values:
+        val BACKGROUND_COLOR_PERMA = Color(0xFF202020)
+        val DARK_GRAY_PERMA = Color(0xFF121212)
 
         // sizes in dp
         val CORNER_RADIUS: Dp = 16.dp
@@ -43,7 +47,7 @@ class Constant {
         val STD_FONT_SIZE: TextUnit = 16.sp
         val STD_TITLE_FONT_SIZE: TextUnit = 24.sp
         val STD_SUBTITLE_FONT_SIZE: TextUnit = 18.sp
-        val MAX_DROPDOWN_HEIGHT = 400.dp
+        val MAX_DROPDOWN_HEIGHT = 200.dp
 
         const val CONFIRM_MESSAGE: String = "OK"
 
