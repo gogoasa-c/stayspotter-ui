@@ -118,7 +118,7 @@ private fun StaysFound(
     }
 
     if (stayList.isEmpty()) {
-        EmptyStayCardList()
+        EmptyStayCardList(text = "Looks like your search criteria didn't return any results. Try again with different criteria.")
     }
 }
 

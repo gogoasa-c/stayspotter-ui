@@ -31,11 +31,8 @@ class DefaultActivity : AppCompatActivity() {
 @Preview
 private fun CommonActivity(intent: Intent = Intent()) {
     val (selected, setSelected) = remember { mutableIntStateOf(Constant.NAVBAR_ITEM_SEARCH) }
-//    val (jsonWebToken, setJsonWebToken) = remember { mutableStateOf("") }
     val jsonWebToken = remember { mutableStateOf("")}
     val (stays, setStays) = remember { mutableStateOf(listOf<FavouriteStay>()) }
-//    setJsonWebToken(intent.getStringExtra(Constant.INTENT_KEY_JWT)
-//        ?: throw AccessDeniedException("No JWT provided"))
     jsonWebToken.value = intent.getStringExtra(Constant.INTENT_KEY_JWT)
         ?: throw AccessDeniedException("No JWT provided")
 

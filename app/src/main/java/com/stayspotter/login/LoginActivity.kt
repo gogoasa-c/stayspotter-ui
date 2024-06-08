@@ -125,7 +125,6 @@ fun LoginScreen() {
     val (username, setUsername) = remember { mutableStateOf("") }
     val (password, setPassword) = remember { mutableStateOf("") }
 
-    val (jsonWebToken, setJsonWebToken) = remember { mutableStateOf("") }
     val (isLoading, setIsLoading) = remember { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -143,7 +142,6 @@ fun LoginScreen() {
         call.enqueue(object : Callback<String> {
             override fun onResponse(call: Call<String>, response: Response<String>) {
                 if (response.isSuccessful) {
-//                    setJsonWebToken(response.body() ?: "")
                     val intent  = Intent(context, DefaultActivity::class.java)
                     intent.putExtra(Constant.INTENT_KEY_JWT, response.body()!!)
 
@@ -197,6 +195,6 @@ fun LoginScreen() {
             registerOnClick)
     }
 
-    LoadingIndicator(isLoading)
+    LoadingIndicator(isLoading, text = "Logging in...")
 
 }

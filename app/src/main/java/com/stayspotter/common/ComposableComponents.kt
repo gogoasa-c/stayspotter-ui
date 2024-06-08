@@ -228,64 +228,68 @@ fun IconFieldV2(
     val coroutineScope = rememberCoroutineScope()
 
     Column {
-        TextField(
-            modifier = Modifier
-                .size(Constant.STD_LENGTH, Constant.STD_HEIGHT),
-            value = field,
-            onValueChange = {
-                setField(it)
-                expanded = true
-                coroutineScope.launch {
-                    filteredSuggestions = suggestions.filter { suggestion ->
-                        Log.d("IconFieldV2", "Filtering for suggestions...")
-                        suggestion.startsWith(it, ignoreCase = true)
-                    }
-                }
-            },
-            shape = RoundedCornerShape(Constant.CORNER_RADIUS),
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                backgroundColor = Constant.PETRIFIED_BLUE,
-                textColor = Constant.TEXT_GRAY
-            ),
-            placeholder = {
-                Text(
-                    text = placeholder,
-                    color = Constant.FADED_GRAY,
-                    fontSize = Constant.STD_FONT_SIZE
-                )
-            },
-            leadingIcon = icon,
-            textStyle = TextStyle.Default.copy(fontSize = Constant.STD_FONT_SIZE)
-        )
-
-        StaySpotterTheme {
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
+        Box {
+            TextField(
                 modifier = Modifier
-                    .size(Constant.STD_LENGTH,
-                        if (Constant.STD_HEIGHT * filteredSuggestions.size > Constant.MAX_DROPDOWN_HEIGHT)
-                            Constant.MAX_DROPDOWN_HEIGHT
-                        else Constant.STD_HEIGHT * filteredSuggestions.size)
-                    .background(
-                        Constant.PETRIFIED_BLUE,
-                        shape = RoundedCornerShape(Constant.CORNER_RADIUS)
-                    ),
-
-                ) {
-                filteredSuggestions.forEach { suggestion ->
-                    DropdownMenuItem(onClick = {
-                        setField(suggestion)
-                        expanded = false
-                        callbackTrigger = true
-                    }, text = {
-                        SimpleText(text = suggestion)
-                    }, modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Transparent)
+                    .size(Constant.STD_LENGTH, Constant.STD_HEIGHT),
+                value = field,
+                onValueChange = {
+                    setField(it)
+                    expanded = true
+                    coroutineScope.launch {
+                        filteredSuggestions = suggestions.filter { suggestion ->
+                            Log.d("IconFieldV2", "Filtering for suggestions...")
+                            suggestion.startsWith(it, ignoreCase = true)
+                        }
+                    }
+                },
+                shape = RoundedCornerShape(Constant.CORNER_RADIUS),
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    backgroundColor = Constant.PETRIFIED_BLUE,
+                    textColor = Constant.TEXT_GRAY
+                ),
+                placeholder = {
+                    Text(
+                        text = placeholder,
+                        color = Constant.FADED_GRAY,
+                        fontSize = Constant.STD_FONT_SIZE
                     )
+                },
+                leadingIcon = icon,
+                textStyle = TextStyle.Default.copy(fontSize = Constant.STD_FONT_SIZE)
+            )
+
+            StaySpotterTheme {
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .size(
+                            Constant.STD_LENGTH,
+                            if (Constant.STD_HEIGHT * filteredSuggestions.size > Constant.MAX_DROPDOWN_HEIGHT)
+                                Constant.MAX_DROPDOWN_HEIGHT
+                            else Constant.STD_HEIGHT * filteredSuggestions.size
+                        )
+                        .background(
+                            Constant.PETRIFIED_BLUE,
+                            shape = RoundedCornerShape(Constant.CORNER_RADIUS)
+                        ),
+
+                    ) {
+                    filteredSuggestions.forEach { suggestion ->
+                        DropdownMenuItem(onClick = {
+                            setField(suggestion)
+                            expanded = false
+                            callbackTrigger = true
+                        }, text = {
+                            SimpleText(text = suggestion)
+                        }, modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.Transparent)
+                        )
+                    }
                 }
             }
         }
