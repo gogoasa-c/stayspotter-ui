@@ -265,7 +265,10 @@ fun IconFieldV2(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 modifier = Modifier
-                    .size(Constant.STD_LENGTH, Constant.STD_HEIGHT * filteredSuggestions.size)
+                    .size(Constant.STD_LENGTH,
+                        if (Constant.STD_HEIGHT * filteredSuggestions.size > Constant.MAX_DROPDOWN_HEIGHT)
+                            Constant.MAX_DROPDOWN_HEIGHT
+                        else Constant.STD_HEIGHT * filteredSuggestions.size)
                     .background(
                         Constant.PETRIFIED_BLUE,
                         shape = RoundedCornerShape(Constant.CORNER_RADIUS)
@@ -410,7 +413,7 @@ fun SimpleText(
 
 @Preview
 @Composable
-fun LoadingIndicator(isLoading: Boolean = true) {
+fun LoadingIndicator(isLoading: Boolean = true, text: String = "Loading...") {
     if (isLoading) {
         Column(
             modifier = Modifier
@@ -423,6 +426,8 @@ fun LoadingIndicator(isLoading: Boolean = true) {
             CircularProgressIndicator(
                 color = Constant.EDGE_BLUE
             )
+            Spacer(modifier = Modifier.height(Constant.STD_PADDING))
+            SimpleText(text = text)
         }
     }
 }
