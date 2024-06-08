@@ -25,8 +25,8 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.LocationCity
 import androidx.compose.material.icons.filled.OutlinedFlag
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.MeetingRoom
 import androidx.compose.material.icons.outlined.PeopleAlt
-import androidx.compose.material.icons.outlined.RemoveRedEye
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePickerDefaults
@@ -39,6 +39,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
@@ -144,12 +147,15 @@ fun EmbeddedSearch(jwt: String = "jwt") {
 
         Spacer(modifier = Modifier.padding(Constant.STD_PADDING * 4))
 
-//        SearchBar(destination, setDestination)
-        SearchBarV2(destination, setDestination, viewModel.cities.value,
-            icon = Icons.Default.LocationCity, placeholder = "City...")
+        SearchBarV2(
+            destination, setDestination, viewModel.cities.value,
+            icon = Icons.Default.LocationCity, placeholder = "City..."
+        )
         Spacer(modifier = Modifier.size(Constant.STD_PADDING))
-        SearchBarV2(country, setCountry, viewModel.countries.value, "Country...",
-            icon = Icons.Default.OutlinedFlag) {
+        SearchBarV2(
+            country, setCountry, viewModel.countries.value, "Country...",
+            icon = Icons.Default.OutlinedFlag
+        ) {
             viewModel.cities.value = viewModel.countriesMap[country] ?: emptyList()
         }
 
@@ -160,7 +166,18 @@ fun EmbeddedSearch(jwt: String = "jwt") {
         FilterChips(filters)
     }
     OverlayButton(context, viewModel, destination, setIsLoading)
-    LoadingIndicator(isLoading)
+    LoadingIndicator(isLoading, getAnnotatedLoadingText().toString())
+}
+
+private fun getAnnotatedLoadingText(): AnnotatedString {
+    return buildAnnotatedString {
+        withStyle(style = SpanStyle(color = Constant.LIGHT_EDGE_BLUE)) {
+            append("Spotting your stay...")
+        }
+        withStyle(style = SpanStyle(color = Constant.EDGE_BLUE)) {
+            append(" This could take up to 20 seconds.")
+        }
+    }
 }
 
 @Composable
@@ -243,6 +260,14 @@ private fun Filters(filters: MutableMap<String, String>, viewModel: SearchActivi
         viewModel.showPriceRangeDialog.value = it
     }
 
+    val setNumberOfRooms: (Int?) -> Unit = {
+        viewModel.numberOfRooms.value = it
+    }
+
+    val setShowNumberOfRoomsDialog: (Boolean) -> Unit = {
+        viewModel.showNumberOfRoomsDialog.value = it
+    }
+
     val datePickerState = rememberDateRangePickerState()
 
     Row(
@@ -278,10 +303,10 @@ private fun Filters(filters: MutableMap<String, String>, viewModel: SearchActivi
 
         GenericSquircleButton(Constant.PETRIFIED_BLUE, icon = {
             Icon(
-                Icons.Outlined.RemoveRedEye, contentDescription = "Sights",
+                Icons.Outlined.MeetingRoom, contentDescription = "Sights",
                 tint = Constant.TEXT_GRAY,
             )
-        })
+        }) { setShowNumberOfRoomsDialog(true) }
 
         if (viewModel.showCalendarDialog.value) {
             CalendarDialog(
@@ -308,6 +333,96 @@ private fun Filters(filters: MutableMap<String, String>, viewModel: SearchActivi
                 setMaxPrice,
                 filters,
             )
+        }
+
+        if (viewModel.showNumberOfRoomsDialog.value) {
+            NumberOfRoomsDialog(
+                setShowNumberOfRoomsDialog,
+                viewModel.numberOfRooms.value,
+                setNumberOfRooms,
+                filters,
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun NumberOfRoomsDialog(
+    setShowNumberOfRoomsDialog: (Boolean) -> Unit = {},
+    numberOfRooms: Int? = 1, setNumberOfRooms: (Int?) -> Unit = {},
+    filters: MutableMap<String, String> = emptyMap<String, String>().toMutableMap()
+) {
+    Dialog(
+        onDismissRequest = { setShowNumberOfRoomsDialog(false) },
+    ) {
+        Card(
+            modifier = Modifier
+                .clip(RoundedCornerShape(Constant.CORNER_RADIUS)),
+            shape = RoundedCornerShape(Constant.CORNER_RADIUS),
+            colors = CardDefaults.cardColors(
+                containerColor = Constant.BACKGROUND_COLOR,
+            )
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.size(Constant.STD_PADDING))
+                Text(
+                    text = "Number of rooms:",
+                    color = Constant.TEXT_GRAY,
+                    fontSize = Constant.STD_FONT_SIZE,
+                    fontFamily = Constant.FONT_FAMILY,
+                )
+
+                Spacer(modifier = Modifier.size(Constant.STD_PADDING))
+
+                FormField(
+                    placeholder = "1",
+                    field = numberOfRooms?.toString() ?: "",
+                    setField = {
+                        if (it.isEmpty()) {
+                            setNumberOfRooms(null)
+                            return@FormField
+                        }
+                        if (it.isDigitsOnly()) {
+                            setNumberOfRooms(it.toInt())
+                        }
+                    },
+                    VisualTransformation.None,
+                    Constant.SMALL_BUTTON_LENGTH,
+                    Constant.STD_HEIGHT,
+                    TextAlign.Center,
+                    KeyboardType.Number
+                )
+
+                Row(
+                    modifier = Modifier.padding(Constant.STD_PADDING),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    GenericButton(
+                        length = Constant.SMALL_BUTTON_LENGTH,
+                        height = Constant.STD_HEIGHT,
+                        color = Constant.PETRIFIED_BLUE,
+                        text = Constant.CONFIRM_MESSAGE,
+                        onClick = {
+                            if (numberOfRooms == null) {
+                                return@GenericButton
+                            }
+
+                            when (numberOfRooms) {
+                                1 -> filters[Constant.FILTER_KEY_ROOMS] = "$numberOfRooms room"
+                                else -> filters[Constant.FILTER_KEY_ROOMS] = "$numberOfRooms rooms"
+                            }
+
+                            setShowNumberOfRoomsDialog(false)
+                        }
+                    )
+                }
+            }
         }
     }
 }
@@ -445,8 +560,10 @@ private fun SearchBarV2(
 }
 
 @Composable
-private fun LoadCities(setCountries: (List<String>) -> Unit = {},
-                       setCountriesMap: (MutableMap<String, List<String>>) -> Unit = {}) {
+private fun LoadCities(
+    setCountries: (List<String>) -> Unit = {},
+    setCountriesMap: (MutableMap<String, List<String>>) -> Unit = {}
+) {
     Log.i("SearchActivity", "Loading cities list...")
 
     val context = LocalContext.current
@@ -454,8 +571,12 @@ private fun LoadCities(setCountries: (List<String>) -> Unit = {},
 
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
-            val reader = BufferedReader(InputStreamReader(context
-                .resources.openRawResource(R.raw.new_countries)))
+            val reader = BufferedReader(
+                InputStreamReader(
+                    context
+                        .resources.openRawResource(R.raw.new_countries)
+                )
+            )
             val fileContents = reader.use { it.readText() }
             val countriesType = object : TypeToken<Map<String, List<String>>>() {}.type
             val countries: Map<String, List<String>> = Gson().fromJson(fileContents, countriesType)
@@ -586,6 +707,10 @@ private fun NumberOfPeopleDialog(
 
                 FormField(
                     placeholder = "2", field = number, setField = {
+                        if (it.isEmpty()) {
+                            setNumber("")
+                            return@FormField
+                        }
                         if (it.isDigitsOnly()) {
                             setNumber(it)
                         }
@@ -605,6 +730,10 @@ private fun NumberOfPeopleDialog(
                         color = Constant.PETRIFIED_BLUE,
                         text = Constant.CONFIRM_MESSAGE,
                         onClick = {
+                            if (number.isEmpty()) {
+                                return@GenericButton
+                            }
+
                             when (number) {
                                 "1" -> filters[Constant.FILTER_KEY_ADULTS] = "$number person"
                                 else -> filters[Constant.FILTER_KEY_ADULTS] = "$number people"
@@ -667,7 +796,11 @@ private fun PriceRangeDialog(
                         placeholder = "0",
                         field = minPrice,
                         setField = {
-                            if (it != "" && it.isDigitsOnly()) {
+                            if (it.isEmpty()) {
+                                setMinPrice("")
+                                return@FormField
+                            }
+                            if (it.isDigitsOnly()) {
                                 setMinPrice(it)
                             }
                         },
@@ -707,6 +840,10 @@ private fun PriceRangeDialog(
                         color = Constant.PETRIFIED_BLUE,
                         text = Constant.CONFIRM_MESSAGE,
                         onClick = {
+                            if (minPrice.isEmpty() || maxPrice.isEmpty()) {
+                                return@GenericButton
+                            }
+
                             filters[Constant.FILTER_KEY_PRICE_RANGE] =
                                 "Price range: $$minPrice - $$maxPrice"
 
@@ -737,6 +874,9 @@ class SearchActivityViewModel : ViewModel() {
     val minPrice = mutableStateOf("")
     val maxPrice = mutableStateOf("")
     val showPriceRangeDialog = mutableStateOf(false)
+
+    val numberOfRooms: MutableState<Int?> = mutableStateOf(1)
+    val showNumberOfRoomsDialog = mutableStateOf(false)
 
     val cities = mutableStateOf<List<String>>(emptyList())
     val countries = mutableStateOf<List<String>>(emptyList())

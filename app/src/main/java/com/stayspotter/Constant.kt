@@ -43,6 +43,7 @@ class Constant {
         val STD_FONT_SIZE: TextUnit = 16.sp
         val STD_TITLE_FONT_SIZE: TextUnit = 24.sp
         val STD_SUBTITLE_FONT_SIZE: TextUnit = 18.sp
+        val MAX_DROPDOWN_HEIGHT = 400.dp
 
         const val CONFIRM_MESSAGE: String = "OK"
 
