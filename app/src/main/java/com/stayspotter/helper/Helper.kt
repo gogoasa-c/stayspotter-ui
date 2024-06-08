@@ -3,9 +3,12 @@ package com.stayspotter.helper
 import com.stayspotter.model.FavouriteStay
 import com.stayspotter.model.Stay
 import com.stayspotter.model.StayRequestDto
+import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Date
 
 /**
  * Converts epoch time to a human-readable date format.
@@ -41,4 +44,20 @@ fun convertStayToFavouriteStay(
         stayRequestDto.checkIn,
         stayRequestDto.checkOut
     )
+}
+
+/**
+ * Converts a string to a [Calendar] object.
+ * @param dateAsString the date as a string
+ * @return a [Calendar] object
+ */
+fun convertStringToCalendar(dateAsString: String): Calendar {
+    val calendar = Calendar.getInstance()
+
+    val formatter = SimpleDateFormat("yyyy-MM-dd")
+    val date = formatter.parse(dateAsString)
+
+    calendar.time = date ?: throw RuntimeException("Failed to parse date")
+
+    return calendar
 }
