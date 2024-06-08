@@ -1,6 +1,8 @@
 package com.stayspotter.common
 
 import android.content.Context
+import android.content.Intent
+import android.provider.CalendarContract
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -67,11 +69,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.core.text.isDigitsOnly
 import coil.compose.SubcomposeAsyncImage
 import com.stayspotter.Constant
 import com.stayspotter.R
 import com.stayspotter.common.api.ApiClient
 import com.stayspotter.helper.convertStayToFavouriteStay
+import com.stayspotter.helper.convertStringToCalendar
 import com.stayspotter.model.FavouriteStay
 import com.stayspotter.model.Stay
 import com.stayspotter.model.StayRequestDto
@@ -81,6 +86,7 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.Calendar
 
 @Composable
 fun GenericFormButton(text: String, color: Color, onClick: () -> Unit = {}) {
@@ -449,9 +455,12 @@ fun StayCard(
     ),
     stayRequestDto: StayRequestDto = StayRequestDto(),
     jwt: String = "jwt",
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
+    stayRequest: StayRequestDto = StayRequestDto()
 ) {
     val isFavorite = remember { mutableStateOf(false) }
+    val (showAddToCalendarDialog, setShowAddToCalendarDialog) =
+        remember { mutableStateOf(false) }
 
     fun saveToFavourites(
         stay: Stay, stayRequestDto: StayRequestDto,
@@ -538,6 +547,7 @@ fun StayCard(
                         .clickable {
                             uriHandler.openUri(stay.link)
                             increaseCheckedOutStays(jwt, context)
+                            setShowAddToCalendarDialog(true)
                         },
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -602,13 +612,99 @@ fun StayCard(
                 }
             }
         }
+        if (showAddToCalendarDialog) {
+            AddToCalendarDialog(setShowAddToCalendarDialog, stay, stayRequest)
+        }
     }
 }
 
 @Preview
 @Composable
-fun EmptyStayCardList(text: String = "Oops... Looks like there's nothing here!",
-                      icon: ImageVector = Icons.Default.SentimentVeryDissatisfied) {
+private fun AddToCalendarDialog(setShowDialog: (Boolean) -> Unit = {}, stay: Stay = Stay(
+        "Magnificent Hotel",
+        "Booking",
+        "https://cf.bstatic.com/xdata/images/hotel/max1024x768/519461821.jpg?k=0e907fea49d593678f35f965ccffc4b220e0f709848c14347ba8f7d9800b698d&o=&hp=1",
+        "$100",
+        23.54,
+        12.34
+    ), stayRequest: StayRequestDto = StayRequestDto()) {
+
+    fun addToCalendar(stay: Stay, stayRequest: StayRequestDto, context: Context) {
+        val intent = Intent(Intent.ACTION_INSERT).apply {
+            data = CalendarContract.Events.CONTENT_URI
+            putExtra(CalendarContract.Events.TITLE, stay.name)
+            putExtra(CalendarContract.Events.EVENT_LOCATION, stayRequest.city)
+            putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, convertStringToCalendar(stayRequest.checkIn).timeInMillis)
+            putExtra(CalendarContract.EXTRA_EVENT_END_TIME, convertStringToCalendar(stayRequest.checkOut).timeInMillis)
+        }
+        if (intent.resolveActivity(context.packageManager) != null) {
+            context.startActivity(intent)
+        } else {
+            Toast.makeText(context, "No suitable calendar app found", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    Dialog(
+        onDismissRequest = { setShowDialog(false) },
+    ) {
+        Card(
+            modifier = Modifier
+                .clip(RoundedCornerShape(Constant.CORNER_RADIUS)),
+            shape = RoundedCornerShape(Constant.CORNER_RADIUS),
+            colors = CardDefaults.cardColors(
+                containerColor = Constant.BACKGROUND_COLOR,
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = Constant.BACKGROUND_COLOR),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.size(Constant.STD_PADDING))
+
+                SimpleText(text = "Did you book this stay?")
+
+                Spacer(modifier = Modifier.size(Constant.STD_PADDING))
+
+                Row(
+                    modifier = Modifier.padding(Constant.STD_PADDING),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val context = LocalContext.current
+                    GenericButton(
+                        length = Constant.SMALL_BUTTON_LENGTH,
+                        height = Constant.STD_HEIGHT,
+                        color = Constant.EDGE_BLUE,
+                        text = "Yes",
+                        onClick = {
+                            addToCalendar(stay, stayRequest, context)
+                            setShowDialog(false)
+                        }
+                    )
+                    Spacer(modifier = Modifier.size(Constant.STD_PADDING))
+                    GenericButton(
+                        length = Constant.SMALL_BUTTON_LENGTH,
+                        height = Constant.STD_HEIGHT,
+                        color = Constant.PETRIFIED_BLUE,
+                        text = "No",
+                        onClick = { setShowDialog(false) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Preview
+@Composable
+fun EmptyStayCardList(
+    text: String = "Oops... Looks like there's nothing here!",
+    icon: ImageVector = Icons.Default.SentimentVeryDissatisfied
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,

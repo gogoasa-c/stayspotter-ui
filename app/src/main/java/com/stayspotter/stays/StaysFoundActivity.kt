@@ -112,7 +112,7 @@ private fun StaysFound(
 
         stayList.forEach { stay ->
             Divider(color = Constant.TEXT_GRAY)
-            StayCard(stay, stayRequestDto, jwt)
+            StayCard(stay, stayRequestDto, jwt, stayRequest = stayRequestDto)
         }
         Spacer(modifier = Modifier.height(Constant.PADDING_STAYS))
     }
