@@ -36,6 +36,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.substring
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -124,15 +125,15 @@ fun EmbeddedProfile(jwt: String = "jwt") {
             UserStats(userStats.numberOfSearches, userStats.topPercentage)
         }
 
-        Column(
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = Constant.STD_PADDING * 2)
-        ) {
-            ThemeToggle()
-        }
+//        Column(
+//            verticalArrangement = Arrangement.Bottom,
+//            horizontalAlignment = Alignment.CenterHorizontally,
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(bottom = Constant.STD_PADDING * 2)
+//        ) {
+//            ThemeToggle()
+//        }
     }
     LoadingIndicator(isLoading)
 }
@@ -230,6 +231,8 @@ private fun ThemeToggle() {
 @Preview
 @Composable
 private fun UserStats(staysNo: Int = 10, topPercentage: Double = 50.0) {
+
+
     val userStats = buildAnnotatedString {
         withStyle(style = SpanStyle(color = Constant.TEXT_GRAY)) {
             append("You've checked out: ")
@@ -249,7 +252,7 @@ private fun UserStats(staysNo: Int = 10, topPercentage: Double = 50.0) {
             append("You're in the top")
         }
         withStyle(style = SpanStyle(color = Constant.EDGE_BLUE)) {
-            append(" $topPercentage% ")
+            append(" ${ if (topPercentage.toString().length > 6) topPercentage.toString().substring(0, 5) else topPercentage}% ")
         }
         withStyle(style = SpanStyle(color = Constant.TEXT_GRAY)) {
             append("of ")

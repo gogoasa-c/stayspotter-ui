@@ -45,6 +45,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,7 +71,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.core.text.isDigitsOnly
 import coil.compose.SubcomposeAsyncImage
 import com.stayspotter.Constant
 import com.stayspotter.R
@@ -80,13 +80,13 @@ import com.stayspotter.helper.convertStringToCalendar
 import com.stayspotter.model.FavouriteStay
 import com.stayspotter.model.Stay
 import com.stayspotter.model.StayRequestDto
+import com.stayspotter.stays.removeStayFromFavourites
 import com.stayspotter.ui.theme.NavBarTheme
 import com.stayspotter.ui.theme.StaySpotterTheme
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.Calendar
 
 @Composable
 fun GenericFormButton(text: String, color: Color, onClick: () -> Unit = {}) {
@@ -633,6 +633,7 @@ private fun AddToCalendarDialog(setShowDialog: (Boolean) -> Unit = {}, stay: Sta
         val intent = Intent(Intent.ACTION_INSERT).apply {
             data = CalendarContract.Events.CONTENT_URI
             putExtra(CalendarContract.Events.TITLE, stay.name)
+            putExtra(CalendarContract.Events.ALL_DAY, true)
             putExtra(CalendarContract.Events.EVENT_LOCATION, stayRequest.city)
             putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, convertStringToCalendar(stayRequest.checkIn).timeInMillis)
             putExtra(CalendarContract.EXTRA_EVENT_END_TIME, convertStringToCalendar(stayRequest.checkOut).timeInMillis)
@@ -737,6 +738,7 @@ fun EmptyStayCardList(
 @Preview
 fun FavouritedStayCard(
     stay: FavouriteStay = FavouriteStay(
+        123L,
         "Alex Apartment Sibiu",
         "Sibiu",
         "https://www.booking.com/hotel/ro/alex-apartment-sibiu-sibiu.en-gb.html?aid=304142&label=gen173nr-1FCAQoggJCDHNlYXJjaF9zaWJpdUgzWARowAGIAQGYAQm4ARfIAQ_YAQHoAQH4AQOIAgGoAgO4AqLPmbIGwAIB0gIkNmU4NGUxMDktNDRlZC00NzVlLTgzMTItOWYxNzIwMDkzMzE52AIF4AIB&ucfs=1&arphpl=1&checkin=2024-07-20&checkout=2024-07-23&group_adults=2&req_adults=2&no_rooms=1&group_children=0&req_children=0&hpos=1&hapos=1&sr_order=popularity&nflt=price%3DUSD-40-60-1&srpvid=edf78d910f7b0166&srepoch=1715890084&all_sr_blocks=1194052401_391707672_2_0_0&highlighted_blocks=1194052401_391707672_2_0_0&matching_block_id=1194052401_391707672_2_0_0&sr_pri_blocks=1194052401_391707672_2_0_0__61300&from=searchresults",
@@ -748,7 +750,11 @@ fun FavouritedStayCard(
         2,
         "2024-07-20",
         "2024-07-23"
-    )
+    ), jwt: String = "jwt",
+    context: Context = LocalContext.current,
+    isActive: MutableState<Boolean> = mutableStateOf(true),
+    reloadStays: () -> Unit = {}
+
 ) {
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -769,9 +775,14 @@ fun FavouritedStayCard(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clickable { uriHandler.openUri(stay.link) },
+                        .clickable {
+                            if (!isActive.value) return@clickable
+                            uriHandler.openUri(stay.link)
+                                   }
+                        .background(if (!isActive.value) Constant.BACKGROUND_COLOR else Color.Transparent),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+
                 ) {
                     SubcomposeAsyncImage(
                         modifier = Modifier.fillMaxWidth(),
@@ -827,6 +838,23 @@ fun FavouritedStayCard(
                     SimpleText(
                         text = stay.price,
                         modifier = Modifier.padding(Constant.STD_PADDING)
+                    )
+                }
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Bottom,
+                    horizontalAlignment = Alignment.End
+                ) {
+                    androidx.compose.material.Icon(
+                        imageVector = Icons.Filled.Favorite,
+                        contentDescription = "Favourite",
+                        tint = Constant.TEXT_GRAY,
+                        modifier = Modifier
+                            .padding(Constant.STD_PADDING)
+                            .size(Constant.STD_SQUARE_ICON_LENGTH)
+                            .clickable {
+                                removeStayFromFavourites(stay, jwt, context, isActive, reloadStays)
+                            }
                     )
                 }
             }

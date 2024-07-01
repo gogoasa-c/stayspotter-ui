@@ -779,7 +779,7 @@ private fun PriceRangeDialog(
             ) {
                 Spacer(modifier = Modifier.size(Constant.STD_PADDING))
                 Text(
-                    text = "Price range:",
+                    text = "Price range (USD/Night):",
                     color = Constant.TEXT_GRAY,
                     fontSize = Constant.STD_FONT_SIZE,
                     fontFamily = Constant.FONT_FAMILY,

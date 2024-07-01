@@ -1,5 +1,6 @@
 package com.stayspotter.common.api
 
+import com.stayspotter.model.Availability
 import com.stayspotter.model.FavouriteStay
 import com.stayspotter.model.Stay
 import com.stayspotter.model.StayRequestDto
@@ -9,11 +10,13 @@ import com.stayspotter.model.UserRegisterResponseDto
 import com.stayspotter.model.UserStatsDto
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface ApiService {
     @Headers("Content-Type: application/json")
@@ -55,4 +58,18 @@ interface ApiService {
     fun getUserStats(
         @Header("Authorization") bearerToken: String
     ): Call<UserStatsDto>
+
+    @Headers("Content-Type: application/json")
+    @POST("stay/availability")
+    fun checkAvailability(
+        @Body stayUrl: String,
+        @Header("Authorization") bearerToken: String
+    ): Call<Availability>
+
+    @Headers("Content-Type: application/json")
+    @DELETE("stay/favourite/{id}")
+    fun removeFromFavourites(
+        @Header("Authorization") bearerToken: String,
+        @Path("id") id: Long
+    ): Call<Unit>
 }
