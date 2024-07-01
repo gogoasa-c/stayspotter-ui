@@ -63,6 +63,7 @@ class Constant {
 
         const val INTENT_KEY_JWT = "jwt"
         const val INTENT_KEY_STAYS = "stays"
+        const val INTENT_KEY_STAY_LIST = "stayList"
         const val INTENT_KEY_CITY = "city"
         const val INTENT_KEY_STAY_SEARCH_REQUEST = "stayRequest"
 

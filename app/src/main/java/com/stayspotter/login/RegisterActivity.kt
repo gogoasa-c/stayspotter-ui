@@ -64,7 +64,13 @@ private fun Register(finish: () -> Unit = {}) {
 
     val context = LocalContext.current
 
-    val registerOnClick: () -> Unit = {
+    val registerOnClick: () -> Unit = registerOnClick@{
+
+        if (passwordAgain != password) {
+            Toast.makeText(context, "Passwords do not match!", Toast.LENGTH_SHORT).show()
+            return@registerOnClick
+        }
+
         setIsLoading(true)
         val userRegisterDto = UserRegisterDto(username, password)
 

@@ -32,6 +32,7 @@ fun convertStayToFavouriteStay(
     stay: Stay, stayRequestDto: StayRequestDto
 ): FavouriteStay {
     return FavouriteStay(
+        null,
         stay.name,
         stayRequestDto.city,
         stay.link,

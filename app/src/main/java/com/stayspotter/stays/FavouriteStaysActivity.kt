@@ -11,7 +11,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
@@ -59,6 +58,7 @@ fun FavouriteStaysEmbedded(
     isFirstOpening: MutableState<Boolean> = mutableStateOf(true), jwt: String = "jwt",
     setStays: (List<FavouriteStay>) -> Unit = {}, stays: List<FavouriteStay> = listOf(
         FavouriteStay(
+            12345L,
             "Alex Apartment Sibiu",
             "Sibiu",
             "https://www.booking.com/hotel/ro/alex-apartment-sibiu-sibiu.en-gb.html?aid=304142&label=gen173nr-1FCAQoggJCDHNlYXJjaF9zaWJpdUgzWARowAGIAQGYAQm4ARfIAQ_YAQHoAQH4AQOIAgGoAgO4AqLPmbIGwAIB0gIkNmU4NGUxMDktNDRlZC00NzVlLTgzMTItOWYxNzIwMDkzMzE52AIF4AIB&ucfs=1&arphpl=1&checkin=2024-07-20&checkout=2024-07-23&group_adults=2&req_adults=2&no_rooms=1&group_children=0&req_children=0&hpos=1&hapos=1&sr_order=popularity&nflt=price%3DUSD-40-60-1&srpvid=edf78d910f7b0166&srepoch=1715890084&all_sr_blocks=1194052401_391707672_2_0_0&highlighted_blocks=1194052401_391707672_2_0_0&matching_block_id=1194052401_391707672_2_0_0&sr_pri_blocks=1194052401_391707672_2_0_0__61300&from=searchresults",
@@ -72,6 +72,7 @@ fun FavouriteStaysEmbedded(
             "2024-07-23"
         ),
         FavouriteStay(
+            12345L,
             "Alex Apartment Sibiu",
             "Sibiu",
             "https://www.booking.com/hotel/ro/alex-apartment-sibiu-sibiu.en-gb.html?aid=304142&label=gen173nr-1FCAQoggJCDHNlYXJjaF9zaWJpdUgzWARowAGIAQGYAQm4ARfIAQ_YAQHoAQH4AQOIAgGoAgO4AqLPmbIGwAIB0gIkNmU4NGUxMDktNDRlZC00NzVlLTgzMTItOWYxNzIwMDkzMzE52AIF4AIB&ucfs=1&arphpl=1&checkin=2024-07-20&checkout=2024-07-23&group_adults=2&req_adults=2&no_rooms=1&group_children=0&req_children=0&hpos=1&hapos=1&sr_order=popularity&nflt=price%3DUSD-40-60-1&srpvid=edf78d910f7b0166&srepoch=1715890084&all_sr_blocks=1194052401_391707672_2_0_0&highlighted_blocks=1194052401_391707672_2_0_0&matching_block_id=1194052401_391707672_2_0_0&sr_pri_blocks=1194052401_391707672_2_0_0__61300&from=searchresults",
@@ -85,6 +86,7 @@ fun FavouriteStaysEmbedded(
             "2024-07-23"
         ),
         FavouriteStay(
+            12345L,
             "Alex Apartment Sibiu",
             "Sibiu",
             "https://www.booking.com/hotel/ro/alex-apartment-sibiu-sibiu.en-gb.html?aid=304142&label=gen173nr-1FCAQoggJCDHNlYXJjaF9zaWJpdUgzWARowAGIAQGYAQm4ARfIAQ_YAQHoAQH4AQOIAgGoAgO4AqLPmbIGwAIB0gIkNmU4NGUxMDktNDRlZC00NzVlLTgzMTItOWYxNzIwMDkzMzE52AIF4AIB&ucfs=1&arphpl=1&checkin=2024-07-20&checkout=2024-07-23&group_adults=2&req_adults=2&no_rooms=1&group_children=0&req_children=0&hpos=1&hapos=1&sr_order=popularity&nflt=price%3DUSD-40-60-1&srpvid=edf78d910f7b0166&srepoch=1715890084&all_sr_blocks=1194052401_391707672_2_0_0&highlighted_blocks=1194052401_391707672_2_0_0&matching_block_id=1194052401_391707672_2_0_0&sr_pri_blocks=1194052401_391707672_2_0_0__61300&from=searchresults",
@@ -118,7 +120,14 @@ fun FavouriteStaysEmbedded(
 
         stays.forEach {
             Divider(color = Constant.TEXT_GRAY)
-            FavouritedStayCard(it)
+            FavouritedStayCard(it, jwt, context, mutableStateOf(true)) {
+                loadStays(
+                    setStays,
+                    jwt,
+                    context,
+                    setIsLoading
+                )
+            }
         }
         Spacer(modifier = Modifier.height(Constant.PADDING_STAYS))
     }
@@ -134,6 +143,34 @@ fun FavouriteStaysEmbedded(
 @Composable
 private fun FavouriteStaysEmpty() {
     FavouriteStaysEmbedded(stays = emptyList())
+}
+
+fun removeStayFromFavourites(
+    stay: FavouriteStay,
+    jwt: String,
+    context: Context,
+    isActive: MutableState<Boolean>,
+    reloadStays: () -> Unit
+) {
+    val call = ApiClient.apiService.removeFromFavourites("Bearer $jwt", stay.reservationId!!)
+
+    call.enqueue(object : Callback<Unit> {
+        override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+            if (response.isSuccessful) {
+                Toast.makeText(context, "Stay removed from favourites", Toast.LENGTH_SHORT).show()
+                isActive.value = false
+                reloadStays()
+                return
+            }
+
+            Toast.makeText(context, "Error while removing stay from favourites", Toast.LENGTH_SHORT).show()
+        }
+
+        override fun onFailure(call: Call<Unit>, t: Throwable) {
+            Toast.makeText(context, "Error while removing stay from favourites", Toast.LENGTH_SHORT).show()
+            Log.e("FavouriteStaysActivity", "Error while removing stay from favourites", t)
+        }
+    })
 }
 
 fun loadStays(

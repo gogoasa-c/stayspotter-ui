@@ -1,6 +1,7 @@
 package com.stayspotter.model
 
 data class FavouriteStay(
+    var reservationId: Long?,
     var name: String,
     var city: String,
     var link: String,
