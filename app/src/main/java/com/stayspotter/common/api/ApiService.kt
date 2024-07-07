@@ -1,6 +1,7 @@
 package com.stayspotter.common.api
 
 import com.stayspotter.model.Availability
+import com.stayspotter.model.AvailabilityCheckRequestDto
 import com.stayspotter.model.FavouriteStay
 import com.stayspotter.model.Stay
 import com.stayspotter.model.StayRequestDto
@@ -11,7 +12,6 @@ import com.stayspotter.model.UserStatsDto
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
-import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
@@ -62,7 +62,7 @@ interface ApiService {
     @Headers("Content-Type: application/json")
     @POST("stay/availability")
     fun checkAvailability(
-        @Body stayUrl: String,
+        @Body stayUrlRequestDto: AvailabilityCheckRequestDto,
         @Header("Authorization") bearerToken: String
     ): Call<Availability>
 
