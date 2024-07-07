@@ -1,11 +1,7 @@
 package com.stayspotter.common
 
-import android.app.job.JobInfo
-import android.app.job.JobScheduler
-import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,9 +12,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import com.google.gson.Gson
 import com.stayspotter.Constant
-import com.stayspotter.common.api.notifications.AvailabilityChecker
+import com.stayspotter.common.api.notifications.MyNotificationReceiver
+import com.stayspotter.common.api.notifications.setAlarmLooper
 import com.stayspotter.model.FavouriteStay
 import com.stayspotter.search.EmbeddedSearch
 import com.stayspotter.stays.FavouriteStaysEmbedded
@@ -27,14 +23,17 @@ import com.stayspotter.user.EmbeddedProfile
 import java.nio.file.AccessDeniedException
 
 class DefaultActivity : AppCompatActivity() {
-   override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
+
+        setAlarmLooper(MyNotificationReceiver::class.java,
+            intent.getStringExtra(Constant.INTENT_KEY_JWT)!!)
         super.onCreate(savedInstanceState)
         setContent {
             CommonActivity(intent)
-//            ScheduleJob()
         }
     }
+
     @Composable
     private fun ScheduleJob() {
         var stayList = listOf<FavouriteStay>()
@@ -73,7 +72,7 @@ class DefaultActivity : AppCompatActivity() {
 @Preview
 private fun CommonActivity(intent: Intent = Intent()) {
     val (selected, setSelected) = remember { mutableIntStateOf(Constant.NAVBAR_ITEM_SEARCH) }
-    val jsonWebToken = remember { mutableStateOf("")}
+    val jsonWebToken = remember { mutableStateOf("") }
     val (stays, setStays) = remember { mutableStateOf(listOf<FavouriteStay>()) }
     jsonWebToken.value = intent.getStringExtra(Constant.INTENT_KEY_JWT)
         ?: throw AccessDeniedException("No JWT provided")

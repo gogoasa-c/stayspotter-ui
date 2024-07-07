@@ -56,6 +56,9 @@
 
         <receiver android:name=".common.api.notifications.NotificationReceiver"
             android:enabled="true"/>
+
+        <receiver android:name=".common.api.notifications.MyNotificationReceiver"
+            android:enabled="true"/>
     </application>
 
 

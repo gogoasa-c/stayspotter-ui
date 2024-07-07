@@ -1,29 +1,73 @@
 package com.stayspotter.common.api.notifications
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.job.JobParameters
-import android.app.job.JobService
 import android.content.Context
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.stayspotter.Constant
 import com.stayspotter.R
+import com.stayspotter.common.api.ApiClient
 import com.stayspotter.model.Availability
+import com.stayspotter.model.AvailabilityCheckRequestDto
 import com.stayspotter.model.FavouriteStay
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import kotlin.random.Random
 
 class AvailabilityChecker(private val context: Context) {
-    private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE)
+            as NotificationManager
+
+    private lateinit var stayList: List<FavouriteStay>
+
+    fun getStayList(jwt: String) {
+        val call = ApiClient.apiService.getFavourites("Bearer $jwt")
+
+        call.enqueue(object : Callback<List<FavouriteStay>> {
+            override fun onResponse(
+                call: Call<List<FavouriteStay>>,
+                response: Response<List<FavouriteStay>>
+            ) {
+                if (response.isSuccessful) {
+                    stayList = response.body() ?: emptyList()
+                    checkChanges(jwt)
+                }
+            }
+
+            override fun onFailure(call: Call<List<FavouriteStay>>, t: Throwable) {
+                Log.e("AvailabilityChecker", "Failed to get stay list")
+            }
+        })
+    }
+
+    fun checkChanges(jwt: String) {
+        Log.i("AvailabilityChecker", "Checking availability")
+        Log.i("AvailabilityChecker", "Stay list: $stayList")
+        for (stay in stayList) {
+            val call = ApiClient.apiService
+                .checkAvailability(AvailabilityCheckRequestDto(stay.link), "Bearer $jwt")
+
+            call.enqueue(object : Callback<Availability> {
+                override fun onResponse(
+                    call: Call<Availability>,
+                    response: Response<Availability>
+                ) {
+                    if (response.isSuccessful) {
+                        Log.i("AvailabilityChecker", "Stay availability checked " +
+                                "${response.isSuccessful}")
+                        val availability = response.body()
+                        if (availability?.available == false) {
+                            sendNotification(stay.name)
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<Availability>, t: Throwable) {
+                    Log.e("AvailabilityChecker", "Failed to check availability")
+                }
+            })
+        }
+    }
 
     fun sendNotification(stayName: String) {
         val notification = NotificationCompat.Builder(context, "availability")
