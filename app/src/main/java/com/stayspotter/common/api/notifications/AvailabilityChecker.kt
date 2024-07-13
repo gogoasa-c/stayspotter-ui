@@ -44,8 +44,17 @@ class AvailabilityChecker(private val context: Context) {
         Log.i("AvailabilityChecker", "Checking availability")
         Log.i("AvailabilityChecker", "Stay list: $stayList")
         for (stay in stayList) {
+            var parsedPrice = 0
+
+            if (stay.price.contains(".")) {
+                parsedPrice = stay.price.split(".")[0].toInt()
+            } else if (stay.price.contains(" ")) {
+                parsedPrice = stay.price.split(" ")[0].toInt()
+            }
+//            val parsedPrice = stay.price.split(" ")[0].toInt()
+
             val call = ApiClient.apiService
-                .checkAvailability(AvailabilityCheckRequestDto(stay.link), "Bearer $jwt")
+                .checkAvailability(AvailabilityCheckRequestDto(stay.link, parsedPrice), "Bearer $jwt")
 
             call.enqueue(object : Callback<Availability> {
                 override fun onResponse(
@@ -58,6 +67,9 @@ class AvailabilityChecker(private val context: Context) {
                         val availability = response.body()
                         if (availability?.available == false) {
                             sendNotification(stay.name)
+                        }
+                        if (availability?.priceChanged == true) {
+                            sendNotification(stay.name, true)
                         }
                     }
                 }
@@ -73,6 +85,15 @@ class AvailabilityChecker(private val context: Context) {
         val notification = NotificationCompat.Builder(context, "availability")
             .setContentTitle("Stay no longer available")
             .setContentText("Stay $stayName is no longer available")
+            .setSmallIcon(R.mipmap.app_icon)
+            .build()
+
+        notificationManager.notify(Random.nextInt(), notification)
+    }
+    fun sendNotification(stayName: String, isPriceChanged: Boolean) {
+        val notification = NotificationCompat.Builder(context, "availability")
+            .setContentTitle("Stay has changed price")
+            .setContentText("Stay $stayName has changed its price")
             .setSmallIcon(R.mipmap.app_icon)
             .build()
 
