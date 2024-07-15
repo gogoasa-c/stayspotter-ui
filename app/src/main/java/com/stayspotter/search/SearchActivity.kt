@@ -627,6 +627,7 @@ private fun findStays(
     stayRequest.adults = viewModel.numberOfPeople.value.toIntOrNull() ?: 2
     stayRequest.priceRangeStart = viewModel.minPrice.value.toIntOrNull() ?: 0
     stayRequest.priceRangeEnd = viewModel.maxPrice.value.toIntOrNull() ?: 1000
+    stayRequest.rooms = viewModel.numberOfRooms.value ?: 1
 
     stayRequest.checkIn = viewModel.selectedStartDate.value
     stayRequest.checkOut = viewModel.selectedEndDate.value
