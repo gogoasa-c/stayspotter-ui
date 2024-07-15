@@ -845,7 +845,7 @@ private fun PriceRangeDialog(
                             }
 
                             filters[Constant.FILTER_KEY_PRICE_RANGE] =
-                                "Price range: $$minPrice - $$maxPrice"
+                                "Price range: $minPrice RON - $maxPrice RON"
 
                             setShowDialog(false)
                         }

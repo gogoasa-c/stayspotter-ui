@@ -16,7 +16,7 @@ class MyNotificationReceiver : NotificationReceiver() {
     private lateinit var context: Context
 
 //    override val loopPeriod: Long = 1000 * 60 * 60 * 24
-    override val loopPeriod: Long = 20 * 1000
+    override val loopPeriod: Long = 60 * 1000
     override val loopAction: String = "com.stayspotter.common.api.notifications.MyNotificationReceiver"
     override val alarmManager: AlarmManager
         get() = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
